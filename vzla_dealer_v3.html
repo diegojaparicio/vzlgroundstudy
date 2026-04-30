@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Venezuela Mobility Dealer Landscape 2026 — v3</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+:root{--ink:#0f0f0f;--ink2:#3a3a3a;--ink3:#6b6b6b;--paper:#fafaf7;--surface:#f3f2ed;--rule:#e0dfd7;--accent:#c8391a;--accent2:#1a4fc8;--gold:#b8860b;--green:#1a7a3c;--purple:#6b21a8}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);font-size:14px;line-height:1.6}
+.cover{background:var(--ink);color:#fafaf7;padding:60px 56px 44px;position:relative;overflow:hidden}
+.cover::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,.03) 39px,rgba(255,255,255,.03) 40px)}
+.cflag{font-size:11px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:28px}
+.cover h1{font-family:'DM Serif Display',serif;font-size:44px;line-height:1.1;margin-bottom:14px;position:relative}
+.cover h1 em{color:#c8391a;font-style:normal}
+.csub{font-size:13px;color:rgba(255,255,255,.5);max-width:500px;margin-bottom:40px;line-height:1.7}
+.cstats{display:flex;gap:44px;border-top:1px solid rgba(255,255,255,.12);padding-top:28px;flex-wrap:wrap}
+.csn{font-family:'DM Serif Display',serif;font-size:30px;color:#fff;line-height:1;margin-bottom:3px}
+.csn span{color:#c8391a}
+.csl{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase}
+.nav{background:#fff;border-bottom:1px solid var(--rule);padding:0 44px;display:flex;position:sticky;top:0;z-index:200;overflow-x:auto}
+.nt{padding:13px 16px;font-size:11px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s}
+.nt:hover{color:var(--ink)}
+.nt.active{color:var(--accent);border-bottom-color:var(--accent)}
+.sec{display:none;padding:36px 44px 64px}
+.sec.active{display:block}
+#sec-map.active{display:flex;flex-direction:column;padding:0}
+/* section header */
+.sh{margin-bottom:28px;border-bottom:1px solid var(--rule);padding-bottom:16px}
+.sh-tag{font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px}
+.sh h2{font-family:'DM Serif Display',serif;font-size:26px;margin-bottom:5px}
+.sh p{color:var(--ink3);font-size:12px;max-width:600px}
+/* stat grid */
+.sg{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:36px}
+.sm{background:#fff;padding:18px 16px}
+.sm-l{font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
+.sm-n{font-family:'DM Serif Display',serif;font-size:22px;line-height:1;margin-bottom:3px}
+.sm-s{font-size:10px;color:var(--ink3)}
+.sm.r .sm-n{color:var(--accent)}.sm.b .sm-n{color:var(--accent2)}.sm.g .sm-n{color:var(--green)}
+/* tables */
+.tw{overflow-x:auto;border:1px solid var(--rule);border-radius:8px;margin-bottom:24px}
+table{width:100%;border-collapse:collapse;font-size:11.5px}
+thead tr{background:var(--ink);color:#fff}
+thead th{padding:9px 11px;text-align:left;font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;cursor:pointer;user-select:none;position:relative}
+thead th:hover{background:#2a2a2a}
+thead th .sort-arrow{margin-left:4px;opacity:.6}
+tbody tr{border-bottom:1px solid var(--rule);transition:background .1s}
+tbody tr:hover{background:var(--surface)}
+tbody tr:last-child{border-bottom:none}
+tbody tr.hidden{display:none}
+tbody td{padding:9px 11px;vertical-align:top;line-height:1.4}
+.td-n{font-weight:500;font-size:12px}
+.td-s{font-size:10px;color:var(--ink3);margin-top:1px}
+/* filter bar */
+.fbar{display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.fbar label{font-size:11px;color:var(--ink3);font-weight:500;white-space:nowrap}
+.fsearch{padding:7px 12px;border:1px solid var(--rule);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:12px;background:#fff;outline:none;min-width:200px}
+.fsearch:focus{border-color:var(--ink3)}
+.fsel{padding:6px 10px;border:1px solid var(--rule);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:12px;background:#fff;outline:none;color:var(--ink2);cursor:pointer}
+.fsel:focus{border-color:var(--ink3)}
+.fcount{font-size:11px;color:var(--ink3);margin-left:auto}
+.fclear{padding:5px 12px;border:1px solid var(--rule);border-radius:5px;font-size:11px;cursor:pointer;background:#fff;color:var(--ink3)}
+.fclear:hover{background:var(--surface)}
+/* brand pills */
+.bpill{display:inline-block;font-size:9px;padding:1px 6px;border-radius:8px;font-weight:500;margin:1px;white-space:nowrap}
+.bpill.jp{background:#dbeafe;color:#1e3a8a}
+.bpill.ko{background:#ede9fe;color:#4c1d95}
+.bpill.eu{background:#f3f4f6;color:#374151}
+.bpill.ch{background:#fee2e2;color:#7f1d1d}
+.bpill.in{background:#fef3c7;color:#78350f}
+.bpill.lo{background:#d1fae5;color:#064e3b}
+.bpill.us{background:#e0f2fe;color:#0c4a6e}
+.bpill.fr{background:#fdf4ff;color:#701a75}
+/* info box */
+.ibox{background:#fff;border:1px solid var(--rule);border-radius:8px;padding:18px 22px;margin-bottom:18px}
+.ibox h3{font-family:'DM Serif Display',serif;font-size:17px;margin-bottom:12px}
+.ir{display:flex;gap:12px;padding:7px 0;border-bottom:1px solid var(--rule);font-size:11px}
+.ir:last-child{border-bottom:none}
+.il{font-weight:600;color:var(--ink2);min-width:130px;flex-shrink:0}
+.iv{color:var(--ink2);line-height:1.5}
+/* cta */
+.cta{background:var(--ink);color:#fff;border-radius:8px;padding:22px 26px;margin-bottom:18px;display:flex;gap:24px;align-items:flex-start}
+.ctan{font-family:'DM Serif Display',serif;font-size:42px;line-height:1;color:var(--accent);flex-shrink:0}
+.ctac h3{font-weight:600;font-size:14px;margin-bottom:4px}
+.ctac p{font-size:11px;color:rgba(255,255,255,.6);line-height:1.6}
+/* map */
+#map-wrap{display:flex;height:calc(100vh - 108px);min-height:480px}
+#sidebar{width:300px;flex-shrink:0;overflow-y:auto;background:#fff;border-right:1px solid var(--rule)}
+#the-map{flex:1}
+.sbh{padding:14px 16px;border-bottom:1px solid var(--rule);position:sticky;top:0;background:#fff;z-index:10}
+.sbh h3{font-family:'DM Serif Display',serif;font-size:16px;margin-bottom:8px}
+.sbf{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.sbf-btn{padding:3px 9px;border:1px solid var(--rule);border-radius:12px;font-size:10px;font-weight:500;cursor:pointer;background:#fff;color:var(--ink2);transition:all .12s}
+.sbf-btn:hover{border-color:var(--ink3)}
+.sbf-btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.sbct{font-size:10px;color:var(--ink3)}
+.dli{padding:10px 16px;border-bottom:1px solid var(--rule);cursor:pointer;transition:background .1s}
+.dli:hover{background:var(--surface)}
+.dli.sel{background:#fff7ed;border-left:2px solid var(--gold)}
+.dli-n{font-weight:500;font-size:12px;margin-bottom:1px}
+.dli-c{font-size:10px;color:var(--ink3)}
+.dli-tag{display:inline-block;font-size:9px;padding:1px 6px;border-radius:3px;font-weight:600;margin-top:3px}
+/* popup */
+.lp{font-family:'DM Sans',sans-serif;max-width:260px}
+.lpn{font-weight:600;font-size:12px;margin-bottom:2px;color:#0f0f0f}
+.lpt{font-size:9px;color:#6b6b6b;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.lpb{display:flex;flex-wrap:wrap;gap:2px;margin-bottom:5px}
+.lpno{font-size:10px;color:#3a3a3a;line-height:1.4;border-top:1px solid #e0dfd7;padding-top:5px;margin-top:3px}
+/* hero model cards */
+.model-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.mcard-hero{background:#fff;border:1px solid var(--rule);border-radius:8px;overflow:hidden;display:flex;flex-direction:column}
+.mcard-body{padding:14px 16px;flex:1;display:flex;flex-direction:column;gap:3px}
+.mcard-cat{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+.mcard-name{font-family:'DM Serif Display',serif;font-size:16px;line-height:1.2;margin:2px 0 5px}
+.mcard-price{font-size:18px;font-weight:600;color:var(--ink)}
+.mcard-price span{font-size:11px;font-weight:400;color:var(--ink3)}
+.mcard-cop{font-size:10px;color:var(--ink3);margin-bottom:5px}
+.mcard-desc{font-size:11px;color:var(--ink2);line-height:1.55;margin-top:auto}
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cflag">Confidential — Maldonado Automotive Group · April 2026 · v3</div>
+  <h1>Venezuela Mobility<br>Dealer & Distributor <em>Landscape</em></h1>
+  <p class="csub">Complete mapping of all active car dealers, motorcycle operators, and LCV distributors across Venezuela — 90+ entities, 16 states, all major brands.</p>
+  <div class="cstats">
+    <div class="cstat"><div class="csn">38<span>,610</span></div><div class="csl">New cars 2025 (Cavenez)</div></div>
+    <div class="cstat"><div class="csn">1<span>M+</span></div><div class="csl">Moto registered fleet</div></div>
+    <div class="cstat"><div class="csn">90<span>%</span></div><div class="csl">Motos Chinese-origin</div></div>
+    <div class="cstat"><div class="csn">0</div><div class="csl">Indian moto 3S network</div></div>
+    <div class="cstat"><div class="csn">90<span>+</span></div><div class="csl">Dealers mapped</div></div>
+  </div>
+</div>
+
+<div class="nav">
+  <div class="nt active" onclick="showSec('market',this)">Market Overview</div>
+  <div class="nt" onclick="showSec('moto',this)">Motorcycle Operators</div>
+  <div class="nt" onclick="showSec('auto',this)">Car Dealers</div>
+  <div class="nt" onclick="showSec('lcv',this)">LCV & Commercial</div>
+  <div class="nt" onclick="showSec('map',this)">🗺 Interactive Map</div>
+  <div class="nt" onclick="showSec('hero',this)">Hero MotoCorp Strategy</div>
+</div>
+
+<!-- ===== MARKET ===== -->
+<div id="sec-market" class="sec active">
+  <div class="sh"><div class="sh-tag">Venezuela 2025–2026</div><h2>Market at a Glance</h2><p>38,610 new cars sold in 2025 (+120% YoY). 1M+ motorcycle fleet. Chinese brands lead cars. Motorcycle market dominated by local assemblers (Bera, Empire) using Chinese CKD. Zero Indian OEM has built a national 3S motorcycle network.</p></div>
+
+  <div class="sg">
+    <div class="sm r"><div class="sm-l">New cars sold 2025</div><div class="sm-n">38,610</div><div class="sm-s">Cavenez registered only. Real market 45–55K+ when Chery/GWM/BAIC included.</div></div>
+    <div class="sm b"><div class="sm-l">#1 brand 2025 (cars)</div><div class="sm-n">JAC</div><div class="sm-s">15,777 units. First Chinese brand to lead VZ. 58 showrooms.</div></div>
+    <div class="sm"><div class="sm-l">#2 brand 2025</div><div class="sm-n">Toyota</div><div class="sm-s">12,800 units. ASOTOY network. Hilux = #1 LCV.</div></div>
+    <div class="sm g"><div class="sm-l">Moto fleet registered</div><div class="sm-n">1M+</div><div class="sm-s">INTT mid-2024. Delivery + mototaxi primary use cases.</div></div>
+    <div class="sm"><div class="sm-l">Indian moto brands (3S)</div><div class="sm-n">ZERO</div><div class="sm-s">Bajaj = Caracas CBU only. TVS = assembled Anzoátegui. Hero = absent.</div></div>
+  </div>
+
+  <div class="ibox"><h3>2025 New Car Market — All Brands</h3>
+  <div class="tw"><table><thead><tr><th>Rank</th><th>Brand</th><th>Units 2025</th><th>Exclusive Distributor</th><th>Assembly VZ</th><th>Multi-brand dealer?</th><th>Origin</th></tr></thead><tbody>
+  <tr><td>1</td><td><strong>JAC Motors</strong></td><td>15,777</td><td>Autopartes Lara (Yaracuy)</td><td>Yes — 75k m²</td><td>No</td><td>China</td></tr>
+  <tr><td>2</td><td><strong>Toyota</strong></td><td>12,800</td><td>ASOTOY (independent dealer assoc.)</td><td>No</td><td>Mostly single-brand</td><td>Japan</td></tr>
+  <tr><td>3</td><td><strong>Changan</strong></td><td>2,500</td><td>Autopartes Lara (Yaracuy)</td><td>Yes</td><td>No</td><td>China</td></tr>
+  <tr><td>4</td><td><strong>Fiat</strong></td><td>1,400</td><td>FCA Venezuela</td><td>No</td><td>Some</td><td>Italy</td></tr>
+  <tr><td>5</td><td><strong>Ford</strong></td><td>1,197</td><td>Ford Motor VZ + independent dealers</td><td>No (paused 2016)</td><td>Yes — multi-brand</td><td>USA</td></tr>
+  <tr><td>6</td><td><strong>Foton</strong></td><td>1,191</td><td>Multiple importers</td><td>Partial</td><td>Often multi-brand</td><td>China</td></tr>
+  <tr><td>7</td><td><strong>Hyundai</strong></td><td>1,180</td><td>Multiple independent dealers</td><td>No</td><td>Yes — most multi-brand</td><td>Korea</td></tr>
+  <tr><td>8</td><td><strong>Kia</strong></td><td>651</td><td>Multiple independent dealers</td><td>No</td><td>Yes — most multi-brand</td><td>Korea</td></tr>
+  <tr><td>9</td><td><strong>Jeep / RAM</strong></td><td>650</td><td>FCA Venezuela</td><td>No</td><td>Some</td><td>USA</td></tr>
+  <tr><td>10</td><td><strong>Renault</strong></td><td>478</td><td>Renault Venezuela (returned 2024)</td><td>No</td><td>Yes</td><td>France</td></tr>
+  <tr><td>—</td><td><strong>Nissan</strong></td><td>N/R*</td><td>Autoambar CA (Los Guayos, Carabobo)</td><td>Historically yes</td><td>No (exclusive)</td><td>Japan</td></tr>
+  <tr><td>—</td><td><strong>GWM / Haval</strong></td><td>1,000+*</td><td>Multiple (Asiria Motors + others)</td><td>No</td><td>Some multi-brand</td><td>China</td></tr>
+  <tr><td>—</td><td><strong>Chery</strong></td><td>N/R*</td><td>Multiple importers</td><td>No</td><td>Yes — fragmented</td><td>China</td></tr>
+  <tr><td>—</td><td><strong>BAIC</strong></td><td>N/R*</td><td>Multiple importers</td><td>No</td><td>Yes — fragmented</td><td>China</td></tr>
+  <tr><td>—</td><td><strong>GAC Motor</strong></td><td>N/R*</td><td>Multiple (La Florida, CCTQ)</td><td>No</td><td>Mostly single-brand</td><td>China</td></tr>
+  <tr><td>—</td><td><strong>Kaiyi</strong></td><td>N/R*</td><td>Kaiyi VZ (separate from Chery main)</td><td>No</td><td>No</td><td>China</td></tr>
+  <tr><td colspan="7" style="font-size:10px;color:var(--ink3);padding:8px 11px">*N/R = Not reported to Cavenez. These brands operate via import channels outside the chamber. Actual total market estimated at 45,000–55,000+ units including all channels.</td></tr>
+  </tbody></table></div></div>
+
+  <div class="ibox"><h3>Motorcycle Brand Hierarchy 2025</h3>
+  <div class="tw"><table><thead><tr><th>Rank</th><th>Brand</th><th>Est. Share</th><th>Origin</th><th>Operator in VZ</th><th>Assembly</th><th>Type</th></tr></thead><tbody>
+  <tr><td>1</td><td><strong>Bera Motorcycles</strong></td><td>~40–50%</td><td>Venezuelan (Chinese CKD)</td><td>Self — La Victoria, Aragua</td><td>Yes — 5 lines, Aragua</td><td>Assembler / own brand</td></tr>
+  <tr><td>2</td><td><strong>Empire Keeway (EK)</strong></td><td>~20–25%</td><td>Venezuelan (Keeway/China CKD)</td><td>Self — Anzoátegui assembly</td><td>Yes — Anzoátegui</td><td>Assembler / own brand</td></tr>
+  <tr><td>3</td><td><strong>AVA Motos</strong></td><td>~8%</td><td>Chinese-origin</td><td>AVA Motos Venezuela</td><td>Partial</td><td>Importer / multi-brand</td></tr>
+  <tr><td>4</td><td><strong>Escuda Motorcycles</strong></td><td>~5%</td><td>Chinese-origin</td><td>Escuda (multi-state network)</td><td>No</td><td>Importer / multi-brand</td></tr>
+  <tr><td>5</td><td><strong>Haojin / Haojue</strong></td><td>~4%</td><td>Chinese</td><td>Multiple regional dealers</td><td>No</td><td>Importer</td></tr>
+  <tr><td>6</td><td><strong>TVS Motor</strong></td><td>~3%</td><td>India</td><td>Servisuministros JPG — EXCLUSIVE VZ</td><td>Yes — Anzoátegui</td><td>Assembler (Indian brand)</td></tr>
+  <tr><td>7</td><td><strong>Bajaj Auto</strong></td><td>~2%</td><td>India</td><td>Grupo UMA VZ — EXCLUSIVE VZ</td><td>No (CBU)</td><td>Importer (Indian brand)</td></tr>
+  <tr><td>8</td><td><strong>Kawasaki</strong></td><td>~2%</td><td>Japan</td><td>Official VZ dealer network</td><td>No</td><td>Importer</td></tr>
+  <tr><td>9</td><td><strong>Suzuki Motos</strong></td><td>~1%</td><td>Japan</td><td>Soloson Import CA — Guatire</td><td>Yes — Guatire</td><td>Local assembler</td></tr>
+  <tr><td>—</td><td><strong>Hero MotoCorp</strong></td><td>0%</td><td>India</td><td>NONE</td><td>None</td><td>Absent</td></tr>
+  <tr><td>—</td><td><strong>MC Motos, Motos Toro, others</strong></td><td>~10%</td><td>Chinese-origin</td><td>Various regional importers</td><td>Partial</td><td>Multi-brand regional</td></tr>
+  </tbody></table></div></div>
+</div>
+
+<!-- ===== MOTORCYCLE OPERATORS ===== -->
+<div id="sec-moto" class="sec">
+  <div class="sh"><div class="sh-tag">Motorcycle Operators · Full Directory</div><h2>Every Active Moto Operator — All States</h2><p>Use the filters below to slice by state, city, brand type, or whether the dealer carries multiple brands.</p></div>
+
+  <div class="fbar">
+    <label>Search:</label><input class="fsearch" type="text" id="moto-search" placeholder="Operator name, city, brand..." oninput="filterTable('moto-tbl')">
+    <label>State:</label><select class="fsel" id="moto-state" onchange="filterTable('moto-tbl')"><option value="">All states</option><option>Aragua</option><option>Anzoátegui</option><option>Bolívar</option><option>Carabobo</option><option>Dtto. Capital</option><option>Falcón</option><option>Lara</option><option>Miranda</option><option>Nacional</option><option>Táchira</option><option>Trujillo</option><option>Zulia</option></select>
+    <label>Multi-brand:</label><select class="fsel" id="moto-multi" onchange="filterTable('moto-tbl')"><option value="">All</option><option value="Yes">Multi-brand</option><option value="No">Single brand</option></select>
+    <label>Assembly:</label><select class="fsel" id="moto-asm" onchange="filterTable('moto-tbl')"><option value="">All</option><option value="Yes">Assembles locally</option><option value="No">No local assembly</option></select>
+    <button class="fclear" onclick="clearFilters('moto')">Clear</button>
+    <span class="fcount" id="moto-count"></span>
+  </div>
+
+  <div class="tw"><table id="moto-tbl">
+    <thead><tr>
+      <th onclick="sortTable('moto-tbl',0)">Operator <span class="sort-arrow">↕</span></th>
+      <th onclick="sortTable('moto-tbl',1)">City <span class="sort-arrow">↕</span></th>
+      <th onclick="sortTable('moto-tbl',2)">State <span class="sort-arrow">↕</span></th>
+      <th onclick="sortTable('moto-tbl',3)">Brands Carried</th>
+      <th onclick="sortTable('moto-tbl',4)">Brand Origin</th>
+      <th onclick="sortTable('moto-tbl',5)">Multi-brand <span class="sort-arrow">↕</span></th>
+      <th onclick="sortTable('moto-tbl',6)">Assembly <span class="sort-arrow">↕</span></th>
+      <th onclick="sortTable('moto-tbl',7)">Notes</th>
+    </tr></thead>
+    <tbody>
+      <tr data-state="Aragua" data-multi="No" data-asm="Yes"><td><div class="td-n">Bera Motorcycles HQ</div><div class="td-s">La Victoria plant. CEO: Elías Beirouti</div></td><td>La Victoria</td><td>Aragua</td><td><span class="bpill lo">Bera (own)</span><span class="bpill">Moto Morini</span><span class="bpill ch">Zontes</span></td><td>Venezuelan / Italian / Chinese</td><td>No (own brand)</td><td>Yes</td><td>Largest moto network VZ. 200+ agents, 22 states. 5 assembly lines, 1 moto/40 sec. Founded 1997. beraservices.com</td></tr>
+      <tr data-state="Anzoátegui" data-multi="No" data-asm="Yes"><td><div class="td-n">Empire Keeway (EK) Assembly</div><div class="td-s">HQ + assembly plant</div></td><td>Anzoátegui</td><td>Anzoátegui</td><td><span class="bpill lo">EK/Keeway</span><span class="bpill ch">CFMOTO</span></td><td>Venezuelan / Chinese</td><td>No (own brand)</td><td>Yes</td><td>Keeway CKD assembled locally. CFMOTO premium co-branded. EK Day free-ride events. 10+ stores across VZ. empirekeeway.com</td></tr>
+      <tr data-state="Anzoátegui" data-multi="No" data-asm="Yes"><td><div class="td-n">Servisuministros JPG — TVS</div><div class="td-s">Exclusive TVS distributor VZ</div></td><td>Anzoátegui</td><td>Anzoátegui</td><td><span class="bpill in">TVS Apache RTR</span><span class="bpill in">TVS Ntorq 125</span><span class="bpill in">TVS King GS 3W</span><span class="bpill in">TVS King Cargo 3W</span></td><td>India</td><td>No</td><td>Yes</td><td>TVS exclusive for all VZ. 14 products. CKD assembly Anzoátegui. Proof Indian moto assembly viable in VZ.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="No" data-asm="No"><td><div class="td-n">Grupo UMA Venezuela — Bajaj</div><div class="td-s">Exclusive Bajaj distributor VZ</div></td><td>Caracas (Chacao)</td><td>Dtto. Capital</td><td><span class="bpill in">Bajaj Boxer</span><span class="bpill in">Bajaj Pulsar</span><span class="bpill in">Bajaj CT100</span><span class="bpill in">Bajaj Dominar</span></td><td>India</td><td>No</td><td>No</td><td>Bajaj exclusive all VZ. CBU import only. Caracas-centric operation. No assembly cost advantage. Same group as Grupo UMA CA (6-country Bajaj exclusive in Central America).</td></tr>
+      <tr data-state="Nacional" data-multi="Yes" data-asm="No"><td><div class="td-n">AVA Motos Venezuela</div><div class="td-s">National multi-brand importer</div></td><td>National</td><td>Nacional</td><td><span class="bpill ch">AVA 150cc commuter</span><span class="bpill ch">AVA cargo range</span></td><td>Chinese-origin</td><td>Yes</td><td>No</td><td>Commuter 150cc focus. Mule 150cc, Pantera 150cc from ~$790. Multi-brand retail model. National network. avamotosvzla.com</td></tr>
+      <tr data-state="Nacional" data-multi="Yes" data-asm="No"><td><div class="td-n">Escuda Motorcycles</div><div class="td-s">Multi-state — 8+ locations</div></td><td>Multi-state</td><td>Nacional</td><td><span class="bpill ch">Escuda brand</span><span class="bpill ch">New Jog 150cc</span></td><td>Chinese-origin</td><td>Yes</td><td>No</td><td>Confirmed locations: Maracaibo (Zulia) · San Cristóbal (Táchira) · Puerto Ordaz + Ciudad Guayana (Bolívar) · Coro (Falcón) · Barquisimeto (Lara) · Maracay (Aragua). escudamotorcycles.com</td></tr>
+      <tr data-state="Miranda" data-multi="No" data-asm="Yes"><td><div class="td-n">Soloson Import CA — Suzuki Motos</div><div class="td-s">Local assembly Guatire</div></td><td>Guatire</td><td>Miranda</td><td><span class="bpill jp">Suzuki GN125</span><span class="bpill jp">Suzuki EN125</span><span class="bpill jp">Suzuki Gixxer 150</span></td><td>Japan</td><td>No</td><td>Yes</td><td>Local Suzuki moto CKD assembly in Guatire plant. Gixxer 150 competes in 150cc sport tier. Proof local assembly viable in Miranda.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="No" data-asm="No"><td><div class="td-n">Kawasaki VZ — Official Dealers</div><div class="td-s">Multiple Caracas points</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill jp">Kawasaki 300–1000cc</span></td><td>Japan</td><td>No</td><td>No</td><td>Official Kawasaki concesionarios. 300cc+ sport/adventure segment. venezuela.kawasaki-la.com. Present in Caracas, Valencia, other major cities.</td></tr>
+      <tr data-state="Nacional" data-multi="Yes" data-asm="No"><td><div class="td-n">MC Motorcycles Venezuela</div><div class="td-s">Multi-city sub-dealer network</div></td><td>Caracas HQ</td><td>Nacional</td><td><span class="bpill ch">MC Brand</span></td><td>Chinese-origin</td><td>Yes</td><td>No</td><td>HQ: 1era Av. Montecristo, Caracas. Sub-dealers: AtilioMotors (Boconó, Trujillo) · Inicios M&R (Rubio, Táchira) · Motocentralvzla (Maracay + Valencia) · Motomania (San Cristóbal, Táchira). mcmotosve.com</td></tr>
+      <tr data-state="Aragua" data-multi="Yes" data-asm="No"><td><div class="td-n">Bera — Agents Maracay / Aragua</div><div class="td-s">Bera authorized agents network</div></td><td>Maracay</td><td>Aragua</td><td><span class="bpill lo">Bera brand</span></td><td>Venezuelan</td><td>Yes</td><td>No</td><td>Bera has authorized agents in Maracay and across Aragua state. Key city for Johnny's base. Approach via Bera HQ for collective regional agreement. Maracay = Bera home state.</td></tr>
+      <tr data-state="Aragua" data-multi="Yes" data-asm="No"><td><div class="td-n">Empire Keeway — Maracay Store</div><div class="td-s">5th EK concession, Dec 2025</div></td><td>Maracay</td><td>Aragua</td><td><span class="bpill lo">EK/Keeway</span><span class="bpill ch">CFMOTO</span></td><td>Venezuelan / Chinese</td><td>Yes</td><td>No</td><td>5th EK concession opened December 2025. Full EK + CFMOTO premium. Maracay is high-priority EK expansion market. Av. Principal zona, Maracay.</td></tr>
+      <tr data-state="Aragua" data-multi="Yes" data-asm="No"><td><div class="td-n">Motocentralvzla — Maracay</div><div class="td-s">MC Motorcycles sub-dealer</div></td><td>Maracay</td><td>Aragua</td><td><span class="bpill ch">MC Brand</span></td><td>Chinese-origin</td><td>Yes</td><td>No</td><td>Motocentralvzla Maracay + Motocentralvzla Valencia = same operator. One relationship = Aragua + Carabobo coverage. Multi-city footprint.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="Yes" data-asm="No"><td><div class="td-n">Bera — Authorized Agents Caracas</div><div class="td-s">Multiple points, greater Caracas</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill lo">Bera brand</span></td><td>Venezuelan</td><td>Yes</td><td>No</td><td>Est. 15–20+ Bera agents in greater Caracas metro (Chacao, Bello Monte, Sabana Grande, Libertador, Los Ruices + satellites). Approach via Bera HQ collective sub-dealer agreement.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="Yes" data-asm="No"><td><div class="td-n">Empire Keeway — Bello Monte, Caracas</div><div class="td-s">Opened Q1 2026</div></td><td>Caracas (Bello Monte)</td><td>Dtto. Capital</td><td><span class="bpill lo">EK/Keeway</span><span class="bpill ch">CFMOTO</span></td><td>Venezuelan / Chinese</td><td>Yes</td><td>No</td><td>Latest EK Caracas store (Q1 2026). Full EK line + CFMOTO. EK Day free-ride events held here. EK sponsors Gran Caracas 2026 racing series.</td></tr>
+      <tr data-state="Zulia" data-multi="Yes" data-asm="No"><td><div class="td-n">Escuda Motorcycles — Maracaibo</div><div class="td-s">Zulia anchor</div></td><td>Maracaibo</td><td>Zulia</td><td><span class="bpill ch">Escuda brand</span></td><td>Chinese-origin</td><td>Yes</td><td>No</td><td>Calle 76/77, Edif. Befercom, local PB-05/06, sector 5 de Julio. Maracaibo = VZ 2nd city. Bajaj/TVS have no strong presence here.</td></tr>
+      <tr data-state="Carabobo" data-multi="Yes" data-asm="No"><td><div class="td-n">Motocentralvzla — Valencia</div><div class="td-s">Carabobo state</div></td><td>Valencia</td><td>Carabobo</td><td><span class="bpill ch">MC Brand</span></td><td>Chinese-origin</td><td>Yes</td><td>No</td><td>Valencia, Estado Carabobo. Sister to Motocentralvzla Maracay. One conversation = both states. Valencia = automotive capital of VZ.</td></tr>
+      <tr data-state="Táchira" data-multi="Yes" data-asm="No"><td><div class="td-n">Escuda Motorcycles — Táchira</div><div class="td-s">San Cristóbal / Panamericana</div></td><td>San Cristóbal</td><td>Táchira</td><td><span class="bpill ch">Escuda brand</span></td><td>Chinese-origin</td><td>Yes</td><td>No</td><td>Multicentro Empresarial Coliseo, Km 16, Carretera Panamericana, Táchira. Border with Colombia. Colombian moto brand recognition crosses over.</td></tr>
+      <tr data-state="Táchira" data-multi="Yes" data-asm="No"><td><div class="td-n">Motomania — San Cristóbal</div><div class="td-s">MC Motorcycles sub-dealer</div></td><td>San Cristóbal</td><td>Táchira</td><td><span class="bpill ch">MC Brand</span></td><td>Chinese-origin</td><td>Yes</td><td>No</td><td>Calle 1 con carrera 3, Collinas de Antaraju, San Cristóbal 5001. Andean corridor hub. Táchira = most active cross-border state.</td></tr>
+      <tr data-state="Táchira" data-multi="Yes" data-asm="No"><td><div class="td-n">Inicios M&R — Rubio</div><div class="td-s">MC Motorcycles sub-dealer</div></td><td>Rubio</td><td>Táchira</td><td><span class="bpill ch">MC Brand</span></td><td>Chinese-origin</td><td>Yes</td><td>No</td><td>Rubio, Estado Táchira — near Colombian border. Small town with high moto transit volume.</td></tr>
+      <tr data-state="Trujillo" data-multi="Yes" data-asm="No"><td><div class="td-n">Empire Keeway — Valera</div><div class="td-s">EK + CFMOTO store, 2025</div></td><td>Valera</td><td>Trujillo</td><td><span class="bpill lo">EK/Keeway</span><span class="bpill ch">CFMOTO</span></td><td>Venezuelan / Chinese</td><td>Yes</td><td>No</td><td>Valera = largest commercial city in Trujillo state. EK opened 2025 as combined EK + CFMOTO showroom. Confirms Trujillo moto market importance.</td></tr>
+      <tr data-state="Trujillo" data-multi="Yes" data-asm="No"><td><div class="td-n">AtilioMotors — Boconó</div><div class="td-s">MC Motorcycles sub-dealer</div></td><td>Boconó</td><td>Trujillo</td><td><span class="bpill ch">MC Brand</span></td><td>Chinese-origin</td><td>Yes</td><td>No</td><td>Boconó, Estado Trujillo. Rural Andean market. High moto utility demand for mountain terrain transport.</td></tr>
+      <tr data-state="Bolívar" data-multi="Yes" data-asm="No"><td><div class="td-n">Escuda — Puerto Ordaz (Alta Vista)</div><div class="td-s">CC Naraya</div></td><td>Puerto Ordaz</td><td>Bolívar</td><td><span class="bpill ch">Escuda brand</span></td><td>Chinese-origin</td><td>Yes</td><td>No</td><td>Av. Paseo Caroní, CC Naraya, PB, local L-6, sector Alta Vista. Mining economy = high-volume moto market. Two Escuda points in Bolívar state.</td></tr>
+      <tr data-state="Bolívar" data-multi="Yes" data-asm="No"><td><div class="td-n">Escuda — Ciudad Guayana</div><div class="td-s">Av. Manuel Piar</div></td><td>Ciudad Guayana</td><td>Bolívar</td><td><span class="bpill ch">Escuda brand</span></td><td>Chinese-origin</td><td>Yes</td><td>No</td><td>Av. Manuel Piar, manzana S/N, UD-112. Ciudad Guayana industrial zone. Delivery + commuter segment strong.</td></tr>
+      <tr data-state="Falcón" data-multi="Yes" data-asm="No"><td><div class="td-n">Escuda — Coro, Falcón</div><div class="td-s">Edif. LIMIKA, Los 3 Platos</div></td><td>Coro</td><td>Falcón</td><td><span class="bpill ch">Escuda brand</span></td><td>Chinese-origin</td><td>Yes</td><td>No</td><td>Calle Urdaneta, Edif. LIMIKA, local 2, Los 3 Platos, Santa Ana de Coro. Coastal/arid economy, moto-centric transport.</td></tr>
+      <tr data-state="Lara" data-multi="Yes" data-asm="No"><td><div class="td-n">Escuda Motorcycles — Barquisimeto</div><div class="td-s">Av. Caracas sector</div></td><td>Barquisimeto</td><td>Lara</td><td><span class="bpill ch">Escuda brand</span></td><td>Chinese-origin</td><td>Yes</td><td>No</td><td>Av. Caracas entre 4ta y 5ta Av., al lado del banco Sofitasa, Barquisimeto. Agricultural heartland. High moto utility demand.</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ===== CAR DEALERS ===== -->
+<div id="sec-auto" class="sec">
+  <div class="sh"><div class="sh-tag">Car Dealers · Full Directory</div><h2>All Car Dealers — All Brands, All Cities</h2><p>Every confirmed active car dealer. Multi-brand dealers are the most open to adding a motorcycle line — they already manage multiple OEM relationships.</p></div>
+
+  <div class="fbar">
+    <label>Search:</label><input class="fsearch" type="text" id="auto-search" placeholder="Dealer, city, brand..." oninput="filterTable('auto-tbl')">
+    <label>State:</label><select class="fsel" id="auto-state" onchange="filterTable('auto-tbl')"><option value="">All states</option><option>Anzoátegui</option><option>Aragua</option><option>Barinas</option><option>Bolívar</option><option>Carabobo</option><option>Dtto. Capital</option><option>Lara</option><option>Miranda</option><option>Monagas</option><option>Nueva Esparta</option><option>Portuguesa</option><option>Táchira</option><option>Trujillo</option><option>Yaracuy</option><option>Zulia</option></select>
+    <label>Brand:</label><select class="fsel" id="auto-brand" onchange="filterTable('auto-tbl')"><option value="">All brands</option><option>Toyota</option><option>Nissan</option><option>Ford</option><option>Hyundai</option><option>Kia</option><option>Renault</option><option>Fiat</option><option>JAC</option><option>Changan</option><option>Haval/GWM</option><option>Chery</option><option>Kaiyi</option><option>GAC</option><option>BAIC</option></select>
+    <label>Multi-brand:</label><select class="fsel" id="auto-multi" onchange="filterTable('auto-tbl')"><option value="">All</option><option value="Yes">Multi-brand</option><option value="No">Single brand</option></select>
+    <button class="fclear" onclick="clearFilters('auto')">Clear</button>
+    <span class="fcount" id="auto-count"></span>
+  </div>
+
+  <div class="tw"><table id="auto-tbl">
+    <thead><tr>
+      <th onclick="sortTable('auto-tbl',0)">Dealer Name <span class="sort-arrow">↕</span></th>
+      <th onclick="sortTable('auto-tbl',1)">City <span class="sort-arrow">↕</span></th>
+      <th onclick="sortTable('auto-tbl',2)">State <span class="sort-arrow">↕</span></th>
+      <th onclick="sortTable('auto-tbl',3)">Brands Carried</th>
+      <th onclick="sortTable('auto-tbl',4)">Multi-brand <span class="sort-arrow">↕</span></th>
+      <th onclick="sortTable('auto-tbl',5)">Address / Contact</th>
+      <th onclick="sortTable('auto-tbl',6)">Notes</th>
+    </tr></thead>
+    <tbody>
+      <!-- NATIONAL -->
+      <tr data-state="Yaracuy" data-multi="No" data-brand="JAC Changan"><td><div class="td-n">Autopartes Lara — JAC + Changan HQ</div><div class="td-s">National assembler & importer</div></td><td>Yaritagua</td><td>Yaracuy</td><td><span class="bpill ch">JAC Motors</span><span class="bpill ch">Changan</span></td><td>No</td><td>Autopista Cimarrón Andresote, Yaritagua. 75,000 m² plant. jacvenezuela.com</td><td>JAC #1 VZ brand 2025 (15,777 units). Changan #3 (2,500). 58 JAC showrooms nationwide. Template for what full Chinese auto distribution looks like in VZ.</td></tr>
+      <!-- CARACAS -->
+      <tr data-state="Dtto. Capital" data-multi="No" data-brand="JAC"><td><div class="td-n">JAC — Plaza Venezuela</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill ch">JAC Motors</span></td><td>No</td><td>Av. Las Acacias, CC Forum, Plaza Venezuela. @jacplazavenezuela. 0424-778-0000</td><td>JAC #1 brand VZ 2025.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="No" data-brand="JAC"><td><div class="td-n">JAC — Sambil Candelaria</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill ch">JAC Motors</span></td><td>No</td><td>Sambil La Candelaria, nivel Río, entrada Vollmer. @autojac.caracas. 0414-313-2319</td><td>Opened Aug 2025.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="No" data-brand="JAC"><td><div class="td-n">JAC — CC Parque Cerro Verde</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill ch">JAC Motors</span></td><td>No</td><td>CC Parque Cerro Verde, estacionamiento 1, local 3–4. @jac.rootes. 0416-560-7489</td><td>Opened Jul 2025.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="No" data-brand="JAC"><td><div class="td-n">JAC — CC Millennium Mall</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill ch">JAC Motors</span></td><td>No</td><td>CC Millennium Mall, Av. Rómulo Gallegos, Los Dos Caminos. Opened Oct 2025.</td><td>4th Caracas JAC point.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="No" data-brand="JAC"><td><div class="td-n">JAC — CC Ciudad Tamanaco (CCTQ)</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill ch">JAC Motors</span></td><td>No</td><td>CC Ciudad Tamanaco, Nivel PB. @jactamanaco. Opened Oct 2025.</td><td>5th Caracas JAC point. CCTQ = premium shopping center.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="No" data-brand="Changan"><td><div class="td-n">Changan — Caracas</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill ch">Changan</span></td><td>No</td><td>changanvzla.com — Caracas location. Full 3S.</td><td>Changan #3 brand VZ 2025. Alsvin sedan, CS35/CS55 SUV, Hunter pickup. Assembled Yaracuy.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="Yes" data-brand="Hyundai"><td><div class="td-n">Automarca — Hyundai, Los Ruices</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill ko">Hyundai</span></td><td>Yes</td><td>Av. Principal Los Ruices, Edif. Roche PB, locales 2–3. @automarcahyundai. 0424-185-1962</td><td>50+ yrs VZ operation. Multi-brand. Official Hyundai dealer.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="Yes" data-brand="Hyundai"><td><div class="td-n">García Tuñón — Hyundai, Los Palos Grandes</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill ko">Hyundai</span></td><td>Yes</td><td>Av. Francisco de Miranda, Urb. Los Palos Grandes. @garciatunon.hyundai. 0212-208-7689</td><td>Multi-brand. East Caracas anchor.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="Yes" data-brand="Hyundai"><td><div class="td-n">Iksan — Hyundai, Las Mercedes</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill ko">Hyundai</span></td><td>Yes</td><td>Av. Orinoco con Calle Monterrey, Urb. Las Mercedes, Baruta. @iksan.caracas. 0412-639-3167</td><td>Multi-brand. Las Mercedes premium zone.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="Yes" data-brand="Hyundai"><td><div class="td-n">Autoking — Hyundai, Caracas</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill ko">Hyundai</span><span class="bpill us">Ford parts</span></td><td>Yes</td><td>autokingve.com. Caracas.</td><td>50+ yrs VZ. Hyundai + Ford parts distribution. Full service infrastructure.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="No" data-brand="Ford"><td><div class="td-n">Ford Campitos Motors</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill us">Ford</span></td><td>No</td><td>CC Los Campitos, Este de Caracas. fordcampitosmotors.com. Opened 2009.</td><td>Official Ford dealer. Type A certified. Sales + service + repuestos. 3yr/100k km warranty.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="No" data-brand="Ford"><td><div class="td-n">Naoko Motors — Ford, Caracas</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill us">Ford</span></td><td>No</td><td>Caracas. 0212-690-2646. Official Ford dealer.</td><td>Established Ford dealership Caracas. Territory/Bronco/Ranger/Raptor catalog.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="No" data-brand="Toyota"><td><div class="td-n">Cars CA — Toyota, Los Chaguaramos</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill jp">Toyota</span></td><td>No</td><td>Av. Los Ilustres, Edif. CARS, Los Chaguaramos. 0212-400-8244. cars.com.ve</td><td>ASOTOY authorized. Full 3S. Established Toyota dealer Caracas.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="No" data-brand="Toyota"><td><div class="td-n">Exiauto — Toyota, Los Ruices</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill jp">Toyota</span></td><td>No</td><td>Av. Principal Los Ruices, cruce 1ra Transversal (Calle Bernardette). exiauto.com</td><td>ASOTOY authorized dealer. Full service capability.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="No" data-brand="Toyota"><td><div class="td-n">Toyocentro — Toyota, Caracas</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill jp">Toyota</span></td><td>No</td><td>toyocentro.com. Caracas.</td><td>ASOTOY authorized. Full Toyota 3S.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="No" data-brand="Renault"><td><div class="td-n">Renault — CCCT, Caracas</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill fr">Renault</span></td><td>No</td><td>Exhibición en CCCT, PB y C1 Plaza Central. Próximamente: Edif. Univers, Av. Luis Roche, Altamira. renaultvenezuela.com</td><td>Renault returned VZ 2024. Models: Sandero, Stepway, Logan, Duster. 10 national points.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="No" data-brand="Renault"><td><div class="td-n">Renault — Los Campitos, Caracas</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill fr">Renault</span></td><td>No</td><td>Av. Pichincha con Calle Río de Oro, CC Los Campitos, PB.</td><td>Second Caracas Renault point.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="No" data-brand="GAC"><td><div class="td-n">GAC Motor — La Florida, Caracas</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill ch">GAC GS3/GS4/GS8</span></td><td>No</td><td>Av. Los Mangos, Edif. Automotores La Florida, Alta Florida.</td><td>Mid-premium Chinese SUV ($25–45K). Full 3S. Second location: CCTQ.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="No" data-brand="Haval/GWM"><td><div class="td-n">Asiria Motors — GWM Haval, Caracas</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill ch">GWM Haval H6</span><span class="bpill ch">Jolion</span><span class="bpill ch">Tank 300</span></td><td>No</td><td>Caracas. iglobal.co confirms. GWM 1,000+ units VZ 2025.</td><td>GWM Haval dealer. Chinese SUV. Growing brand in VZ.</td></tr>
+      <tr data-state="Dtto. Capital" data-multi="No" data-brand="Kaiyi"><td><div class="td-n">Kaiyi — Los Campitos + Bello Campo</div></td><td>Caracas</td><td>Dtto. Capital</td><td><span class="bpill ch">Kaiyi X3/X7</span></td><td>No</td><td>CC Los Campitos PB (primary). Av. José Félix Sosa, Bello Campo, Chacao (2nd).</td><td>Kaiyi = Chery sub-brand. Launched VZ 2024. Rapid 9-city rollout model.</td></tr>
+      <!-- MIRANDA -->
+      <tr data-state="Miranda" data-multi="No" data-brand="JAC"><td><div class="td-n">JAC — Forum Guatire</div></td><td>Guatire</td><td>Miranda</td><td><span class="bpill ch">JAC Motors</span></td><td>No</td><td>Forum Guatire. @jacplazavenezuela. 0424-126-3051</td><td>Guatire = fast-growing satellite of Caracas.</td></tr>
+      <tr data-state="Miranda" data-multi="No" data-brand="Kaiyi"><td><div class="td-n">Kaiyi — Carrizal, Miranda</div></td><td>Carrizal</td><td>Miranda</td><td><span class="bpill ch">Kaiyi X3/X7</span></td><td>No</td><td>Carretera Panamericana km. 19, La Carbonera, Carrizal.</td><td>Suburban Caracas / Miranda. Los Altos corridor.</td></tr>
+      <!-- CARABOBO (VALENCIA) -->
+      <tr data-state="Carabobo" data-multi="No" data-brand="Nissan"><td><div class="td-n">Autoambar CA — Nissan HQ</div><div class="td-s">Exclusive national Nissan importer</div></td><td>Los Guayos</td><td>Carabobo</td><td><span class="bpill jp">Nissan (full range)</span></td><td>No</td><td>Urb. Industrial Los Guayos, 1ra Transversal 94-A, Parcela 16, Paraparal. Admin HQ: Valencia. +58-241-858-8835. nissan.net.ve</td><td>Founded Jul 2002. Exclusive Nissan importer all VZ. Valencia = automotive capital. National network of independent Nissan dealers. Frontier, X-Trail, Kicks, Armada, Patrol.</td></tr>
+      <tr data-state="Carabobo" data-multi="No" data-brand="JAC"><td><div class="td-n">JAC — Av. Lisandro Alvarado, Valencia</div></td><td>Valencia</td><td>Carabobo</td><td><span class="bpill ch">JAC Motors</span></td><td>No</td><td>Av. Lisandro Alvarado al lado de empresas Amadio. @jaccarabobo. 0412-246-8116. Opened Aug 2024.</td><td>Valencia = automotive capital VZ. JAC investing in Carabobo market.</td></tr>
+      <tr data-state="Carabobo" data-multi="No" data-brand="Changan"><td><div class="td-n">Changan — Valencia</div></td><td>Valencia</td><td>Carabobo</td><td><span class="bpill ch">Changan</span></td><td>No</td><td>changanvzla.com — Valencia concesionario. Full 3S.</td><td>Changan has dedicated Valencia dealer. Part of Autopartes Lara network.</td></tr>
+      <tr data-state="Carabobo" data-multi="Yes" data-brand="Hyundai"><td><div class="td-n">Verautos — Hyundai, Valencia</div></td><td>Valencia</td><td>Carabobo</td><td><span class="bpill ko">Hyundai</span></td><td>Yes</td><td>Av. Bolívar Norte, Urb. El Recreo, Nro. 157-170. @Verautos. mercadeo@verautos.com.ve. 0424-450-9511</td><td>Multi-brand dealer. Valencia automotive capital. Official Hyundai 3S.</td></tr>
+      <tr data-state="Carabobo" data-multi="Yes" data-brand="Hyundai"><td><div class="td-n">Iksan Motors — Castillito, San Diego</div></td><td>San Diego</td><td>Carabobo</td><td><span class="bpill ko">Hyundai</span></td><td>Yes</td><td>Av. Don Julio Centeno, Zona Industrial Castillito (frente cigarrera Bigott). @Iksanmotors. 0424-310-2330</td><td>Industrial zone dealer. Multi-brand. Fleet/commercial buyer focus.</td></tr>
+      <tr data-state="Carabobo" data-multi="No" data-brand="Kia"><td><div class="td-n">Kia — El Viñedo, Valencia</div></td><td>Valencia</td><td>Carabobo</td><td><span class="bpill ko">Kia</span></td><td>No</td><td>Av. Carlos Sanda (El Viñedo), Valencia. Official Kia dealer.</td><td>Kia Valencia. Picanto, Sportage, Carnival, Seltos.</td></tr>
+      <tr data-state="Carabobo" data-multi="No" data-brand="Ford"><td><div class="td-n">Ford — Valencia (Altautos or equiv.)</div></td><td>Valencia</td><td>Carabobo</td><td><span class="bpill us">Ford</span></td><td>No</td><td>Valencia, Carabobo. altautosve.com / ford.com.ve. Ford assembly was here 1962–2016.</td><td>Ford historically assembled in Valencia. Now import only. Active dealers in Carabobo.</td></tr>
+      <!-- ARAGUA (MARACAY) -->
+      <tr data-state="Aragua" data-multi="No" data-brand="Changan"><td><div class="td-n">Changan — Maracay</div></td><td>Maracay</td><td>Aragua</td><td><span class="bpill ch">Changan</span></td><td>No</td><td>Av. Bolívar C/C Av. Primera norte sur, Parcelas A1–A2, Urb. San Jacinto, Maracay. changanvzla.com</td><td>Full 3S. Maracay Changan dedicated concesionario. Key city (Johnny's base).</td></tr>
+      <tr data-state="Aragua" data-multi="Yes" data-brand="Hyundai"><td><div class="td-n">Laureles Trucks — Hyundai, Turmero</div></td><td>Turmero</td><td>Aragua</td><td><span class="bpill ko">Hyundai</span></td><td>Yes</td><td>Carretera Nacional Cagua–La Encrucijada, Centro Empresarial Los Laureles, Turmero. @laurelestrucks. 0424-308-5790</td><td>LCV/truck orientation ("Trucks" in name). Same state as Bera HQ (La Victoria). Cagua branch also active: Ctra. Nacional Cagua, near Argua.</td></tr>
+      <tr data-state="Aragua" data-multi="No" data-brand="JAC"><td><div class="td-n">JAC — Cagua, Aragua</div></td><td>Cagua</td><td>Aragua</td><td><span class="bpill ch">JAC Motors</span></td><td>No</td><td>Ctra. Nacional Cagua, Villa de Cura, entre Pichincha y Comercio. @autoclubve. 0412-933-9178</td><td>Cagua = industrial corridor between Caracas and Valencia. JAC investing in Aragua state.</td></tr>
+      <tr data-state="Aragua" data-multi="No" data-brand="Renault"><td><div class="td-n">Renault — Maracay</div></td><td>Maracay</td><td>Aragua</td><td><span class="bpill fr">Renault</span></td><td>No</td><td>Av. Bolívar Oeste, Sector La Romana, Maracay.</td><td>Renault has confirmed Maracay dealer (one of 10 national points). Sandero, Stepway, Logan, Duster.</td></tr>
+      <tr data-state="Aragua" data-multi="No" data-brand="Kia"><td><div class="td-n">Kia — Maracay</div></td><td>Maracay</td><td>Aragua</td><td><span class="bpill ko">Kia</span></td><td>No</td><td>Av. Constitución Oeste 184 (Peaje de Tapa Tapa), Maracay, Estado Aragua. Official Kia dealer.</td><td>Kia has dedicated dealer in Maracay. Picanto entry point at ~$12K.</td></tr>
+      <!-- ZULIA (MARACAIBO) -->
+      <tr data-state="Zulia" data-multi="No" data-brand="JAC"><td><div class="td-n">JAC — Zulia Mall, Maracaibo</div></td><td>Maracaibo</td><td>Zulia</td><td><span class="bpill ch">JAC Motors</span></td><td>No</td><td>Zulia Mall Paseo San Francisco, Av. 5, San Francisco. @jacmotorsmcbo. 0414-626-0484</td><td>JAC Maracaibo anchor. First Maracaibo point.</td></tr>
+      <tr data-state="Zulia" data-multi="No" data-brand="JAC"><td><div class="td-n">JAC — Zona D, Maracaibo</div></td><td>Maracaibo</td><td>Zulia</td><td><span class="bpill ch">JAC Motors</span></td><td>No</td><td>CC Zona D, Las Delicias Norte. Opened Jan 2024.</td><td>Second Maracaibo JAC. Rapid Zulia investment.</td></tr>
+      <tr data-state="Zulia" data-multi="No" data-brand="Changan"><td><div class="td-n">Changan — Maracaibo</div></td><td>Maracaibo</td><td>Zulia</td><td><span class="bpill ch">Changan</span></td><td>No</td><td>changanvzla.com — Maracaibo concesionario. Full 3S.</td><td>Changan dedicated Maracaibo dealer. Confirms Changan investing in Zulia market.</td></tr>
+      <tr data-state="Zulia" data-multi="Yes" data-brand="Hyundai"><td><div class="td-n">Daimotors — Hyundai, Maracaibo</div></td><td>Maracaibo</td><td>Zulia</td><td><span class="bpill ko">Hyundai</span></td><td>Yes</td><td>Av. 4 Bella Vista, entre calle 80 y 82, Edif. Hyundai. @daimotorsmcbo. ventas@daimotors.com.ve. 0261-700-0485</td><td>Multi-brand. Primary Maracaibo Hyundai dealer.</td></tr>
+      <tr data-state="Zulia" data-multi="Yes" data-brand="Hyundai"><td><div class="td-n">Automall VE — Hyundai, Maracaibo</div></td><td>Maracaibo</td><td>Zulia</td><td><span class="bpill ko">Hyundai</span></td><td>Yes</td><td>Av. Padilla, Calles 95 y 95C. @automallve. 0412-089-9761</td><td>Multi-brand. Second Maracaibo Hyundai point.</td></tr>
+      <tr data-state="Zulia" data-multi="No" data-brand="Kia"><td><div class="td-n">Kia — Av. 8, Maracaibo</div></td><td>Maracaibo</td><td>Zulia</td><td><span class="bpill ko">Kia</span></td><td>No</td><td>Av. 8 con calle 82B, Maracaibo. Also: Av. Universidad, Edif. Kia Cars, Maracaibo.</td><td>Kia has multiple points in Maracaibo. Foursquare confirms Av. 8 and Av. Universidad locations.</td></tr>
+      <tr data-state="Zulia" data-multi="No" data-brand="Kaiyi"><td><div class="td-n">Kaiyi — Av. 4 Bella Vista, Maracaibo</div></td><td>Maracaibo</td><td>Zulia</td><td><span class="bpill ch">Kaiyi X3/X7</span></td><td>No</td><td>Av. 4 Bella Vista entre calles 80 y 82, Maracaibo.</td><td>Kaiyi 2024 launch. Rapid Maracaibo penetration.</td></tr>
+      <tr data-state="Zulia" data-multi="No" data-brand="JAC"><td><div class="td-n">JAC — Circunvalación 2, Maracaibo</div></td><td>Maracaibo</td><td>Zulia</td><td><span class="bpill ch">JAC Motors</span></td><td>No</td><td>Av. Circunvalación 2, a 100 mts del Palacio de Eventos. 0414-626-0484. @jacmotorsmcbo</td><td>Third Maracaibo JAC point. JAC heavily investing in Zulia.</td></tr>
+      <!-- ANZOÁTEGUI (BARCELONA) -->
+      <tr data-state="Anzoátegui" data-multi="No" data-brand="JAC"><td><div class="td-n">JAC — Barcelona, Anzoátegui</div></td><td>Barcelona</td><td>Anzoátegui</td><td><span class="bpill ch">JAC Motors</span></td><td>No</td><td>Av. Principal Mesones, Barcelona. @autoclubve. 0412-933-9178. Opened Jun 2024.</td><td>Barcelona = Anzoátegui state capital. JAC entering eastern VZ.</td></tr>
+      <tr data-state="Anzoátegui" data-multi="No" data-brand="Changan"><td><div class="td-n">Changan — Puerto La Cruz</div></td><td>Puerto La Cruz</td><td>Anzoátegui</td><td><span class="bpill ch">Changan</span></td><td>No</td><td>changanvzla.com — Pto La Cruz concesionario.</td><td>Changan has dedicated eastern VZ dealer. Barcelona / Puerto La Cruz metro area.</td></tr>
+      <tr data-state="Anzoátegui" data-multi="Yes" data-brand="Hyundai"><td><div class="td-n">Iksan — Hyundai, Lechería</div></td><td>Lechería</td><td>Anzoátegui</td><td><span class="bpill ko">Hyundai</span></td><td>Yes</td><td>Calle Mariño, frente CC Peñón del Faro, Lechería. @iksan.lecheria. 0424-271-5668</td><td>Multi-brand. Same state as TVS assembly (Servisuministros JPG). Affluent coastal market.</td></tr>
+      <tr data-state="Anzoátegui" data-multi="Yes" data-brand="Hyundai"><td><div class="td-n">Global Auto Hyundai — El Tigre</div></td><td>El Tigre</td><td>Anzoátegui</td><td><span class="bpill ko">Hyundai</span></td><td>Yes</td><td>Av. Rotaria, sector Vea, cruce calle 8. @Hyundaieltigre. 0414-788-4433</td><td>El Tigre = interior Anzoátegui oil town. Multi-brand.</td></tr>
+      <tr data-state="Anzoátegui" data-multi="Yes" data-brand="Hyundai"><td><div class="td-n">Talleres Latino CA — Hyundai, Barcelona</div></td><td>Barcelona</td><td>Anzoátegui</td><td><span class="bpill ko">Hyundai</span></td><td>Yes</td><td>Av. Juan de Urpín c/ Calle San Martín, Barcelona. 0281-274-1733</td><td>Multi-brand. Barcelona primary Hyundai point.</td></tr>
+      <!-- LARA (BARQUISIMETO) -->
+      <tr data-state="Lara" data-multi="No" data-brand="JAC"><td><div class="td-n">JAC — Barquisimeto Centro + Av. Las Industrias</div></td><td>Barquisimeto</td><td>Lara</td><td><span class="bpill ch">JAC Motors</span></td><td>No</td><td>Av. 20 entre calles 15 y 16, zona Centro · Av. Las Industrias, Zona Industrial III (@jacmotors_lara). Av. Pedro León Torres, con 59A (@jacobelisco, opened May 2025).</td><td>3 JAC points in Barquisimeto alone. Lara = large agricultural state.</td></tr>
+      <tr data-state="Lara" data-multi="No" data-brand="Changan"><td><div class="td-n">Changan — El Vigía / Lara corridor</div></td><td>Barquisimeto area</td><td>Lara</td><td><span class="bpill ch">Changan</span></td><td>No</td><td>changanvzla.com lists El Vigía and Lara corridor dealers.</td><td>Changan active in Lara / Andean corridor.</td></tr>
+      <tr data-state="Lara" data-multi="No" data-brand="Kia"><td><div class="td-n">Kia — Barquisimeto</div></td><td>Barquisimeto</td><td>Lara</td><td><span class="bpill ko">Kia</span></td><td>No</td><td>Av. Lara (al lado del BBVA Provincial), Barquisimeto. Official Kia dealer.</td><td>Kia active in Barquisimeto. Large city, active car market.</td></tr>
+      <tr data-state="Lara" data-multi="No" data-brand="Renault"><td><div class="td-n">Renault — Barquisimeto</div></td><td>Barquisimeto</td><td>Lara</td><td><span class="bpill fr">Renault</span></td><td>No</td><td>Barquisimeto (listed as one of 10 national Renault points).</td><td>Luis Román, VP Renault Barquisimeto is quoted in press on their VZ re-entry.</td></tr>
+      <tr data-state="Lara" data-multi="No" data-brand="Kaiyi"><td><div class="td-n">Kaiyi — Sambil Barquisimeto</div></td><td>Barquisimeto</td><td>Lara</td><td><span class="bpill ch">Kaiyi X3/X7</span></td><td>No</td><td>CC Sambil Barquisimeto, local 1 frente a Av. Venezuela.</td><td>Prime mall location. Kaiyi 2024.</td></tr>
+      <!-- TÁCHIRA / MÉRIDA / TRUJILLO -->
+      <tr data-state="Táchira" data-multi="Yes" data-brand="Hyundai"><td><div class="td-n">Sei Motors — Hyundai, San Cristóbal</div></td><td>San Cristóbal</td><td>Táchira</td><td><span class="bpill ko">Hyundai</span></td><td>Yes</td><td>Av. Libertador, Edif. Sei Motors, San Cristóbal. @seimotorsc. 0424-576-2926</td><td>Multi-brand. Same city as Motomania moto dealer = dual coverage possible.</td></tr>
+      <tr data-state="Táchira" data-multi="Yes" data-brand="Hyundai"><td><div class="td-n">Nemer — Hyundai, Barinas + San Cristóbal</div></td><td>Barinas / San Cristóbal</td><td>Barinas/Táchira</td><td><span class="bpill ko">Hyundai</span></td><td>Yes</td><td>Barinas: Av. 23 de Enero, Parque la Federación. San Cristóbal: same operator. adm.nemer.2021@gmail.com</td><td>Multi-city operator. Barinas + Táchira = Andean corridor coverage.</td></tr>
+      <tr data-state="Táchira" data-multi="No" data-brand="Changan"><td><div class="td-n">Changan — San Cristóbal</div></td><td>San Cristóbal</td><td>Táchira</td><td><span class="bpill ch">Changan</span></td><td>No</td><td>changanvzla.com — San Cristóbal concesionario.</td><td>Changan has dedicated Táchira dealer. Border city = active import market.</td></tr>
+      <tr data-state="Trujillo" data-multi="Yes" data-brand="Hyundai"><td><div class="td-n">Won Motors — Hyundai, Valera</div></td><td>Valera</td><td>Trujillo</td><td><span class="bpill ko">Hyundai</span></td><td>Yes</td><td>Av. Bolívar, sector la plata, Edif. Won Motors. @hyundaiwonmotors. 0271-221-8616</td><td>Multi-brand. Same city as EK Valera moto store = dual channel in Valera.</td></tr>
+      <!-- BOLÍVAR / PUERTO ORDAZ -->
+      <tr data-state="Bolívar" data-multi="Yes" data-brand="Hyundai"><td><div class="td-n">Maxiautos — Hyundai, Puerto Ordaz</div></td><td>Puerto Ordaz</td><td>Bolívar</td><td><span class="bpill ko">Hyundai</span></td><td>Yes</td><td>Av. Caracas UD 304, Zona Industrial Los Pinos, parcela 36–38. @maxiautosguayana. 0414-099-5990</td><td>Multi-brand. Same city as Escuda moto (Alta Vista). Mining economy.</td></tr>
+      <tr data-state="Bolívar" data-multi="No" data-brand="Changan"><td><div class="td-n">Changan — Puerto Ordaz</div></td><td>Puerto Ordaz</td><td>Bolívar</td><td><span class="bpill ch">Changan</span></td><td>No</td><td>changanvzla.com — Puerto Ordaz concesionario.</td><td>Changan present in Puerto Ordaz. Bolívar mining economy = fleet buyer market.</td></tr>
+      <!-- NUEVA ESPARTA (MARGARITA) -->
+      <tr data-state="Nueva Esparta" data-multi="Yes" data-brand="Hyundai"><td><div class="td-n">Automotores Hyundai — Porlamar</div></td><td>Porlamar</td><td>Nueva Esparta</td><td><span class="bpill ko">Hyundai</span></td><td>Yes</td><td>Av. Juan Bautista Arismendi, Local Hyundai, Sector Los Cocos, Porlamar. @hyundaimgta. 0424-839-1601</td><td>Multi-brand. Margarita free port = lower duty. Tourism economy. Premium moto test market opportunity.</td></tr>
+      <tr data-state="Nueva Esparta" data-multi="No" data-brand="Kaiyi"><td><div class="td-n">Kaiyi — Porlamar</div></td><td>Porlamar</td><td>Nueva Esparta</td><td><span class="bpill ch">Kaiyi X3/X7</span></td><td>No</td><td>Av. Rómulo Betancourt con calle Aeropuerto, Sabana Mar, Porlamar.</td><td>Kaiyi 2024. Free port advantage.</td></tr>
+      <tr data-state="Nueva Esparta" data-multi="No" data-brand="Changan"><td><div class="td-n">Changan — Margarita (Taller Autorizado)</div></td><td>Porlamar</td><td>Nueva Esparta</td><td><span class="bpill ch">Changan</span></td><td>No</td><td>changanvzla.com — Margarita taller autorizado.</td><td>Changan service point on Margarita. Shows brand penetration on the island.</td></tr>
+      <!-- PORTUGUESA / BARINAS -->
+      <tr data-state="Portuguesa" data-multi="Yes" data-brand="Hyundai"><td><div class="td-n">Primelink Autos — Hyundai, Araure</div></td><td>Araure</td><td>Portuguesa</td><td><span class="bpill ko">Hyundai</span></td><td>Yes</td><td>Av. 13 de Junio con Av. 25, Araure. @primelink.autos. 0424-538-2129</td><td>Multi-brand. Agricultural heartland. Portuguesa = high moto utility demand state.</td></tr>
+      <tr data-state="Portuguesa" data-multi="No" data-brand="Renault"><td><div class="td-n">Renault — Acarigua, Portuguesa</div></td><td>Acarigua</td><td>Portuguesa</td><td><span class="bpill fr">Renault</span></td><td>No</td><td>CC Llano Mall, Av. José Antonio Páez cruce Av. Eduardo Chollet, Acarigua.</td><td>One of Renault's 10 national points. Active in agricultural interior.</td></tr>
+      <tr data-state="Barinas" data-multi="No" data-brand="Renault"><td><div class="td-n">Renault — Barinas</div></td><td>Barinas</td><td>Barinas</td><td><span class="bpill fr">Renault</span></td><td>No</td><td>Av. 23 de Enero, Local S/N, Sector La Federación, Barinas.</td><td>Renault Barinas. Oroch pickup popular in agricultural states.</td></tr>
+      <tr data-state="Barinas" data-multi="No" data-brand="Kaiyi"><td><div class="td-n">Kaiyi — Barinas</div></td><td>Barinas</td><td>Barinas</td><td><span class="bpill ch">Kaiyi X3/X7</span></td><td>No</td><td>Av. 23 de enero, sector Los Marqueses, Barinas.</td><td>Kaiyi 2024. Active in Llanos states.</td></tr>
+      <!-- MONAGAS / MATURÍN -->
+      <tr data-state="Monagas" data-multi="No" data-brand="Changan"><td><div class="td-n">Changan — Maturín, Monagas</div></td><td>Maturín</td><td>Monagas</td><td><span class="bpill ch">Changan</span></td><td>No</td><td>changanvzla.com — Maturín concesionario.</td><td>Maturín = Monagas state capital. Oil economy. Changan one of few organized car dealers here.</td></tr>
+      <!-- FALCÓN -->
+      <tr data-state="Falcón" data-multi="No" data-brand="Renault"><td><div class="td-n">Renault — Punto Fijo, Falcón</div></td><td>Punto Fijo</td><td>Falcón</td><td><span class="bpill fr">Renault</span></td><td>No</td><td>Av. Francisco de Miranda diagonal a la escuela de ingenieros, Punto Fijo.</td><td>Punto Fijo = Paraguaná peninsula, refinery economy. Active car market.</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ===== LCV ===== -->
+<div id="sec-lcv" class="sec">
+  <div class="sh"><div class="sh-tag">LCV & Commercial</div><h2>Light Commercial Vehicles — All Operators</h2><p>Fleet/SME buyer base. Same B2B customer who buys delivery motos. LCV dealers are natural candidates for a commercial motorcycle conversation.</p></div>
+  <div class="fbar">
+    <label>Search:</label><input class="fsearch" type="text" id="lcv-search" placeholder="Brand, city, operator..." oninput="filterTable('lcv-tbl')">
+    <label>State:</label><select class="fsel" id="lcv-state" onchange="filterTable('lcv-tbl')"><option value="">All states</option><option>Carabobo</option><option>Dtto. Capital</option><option>Lara</option><option>Nacional</option><option>Yaracuy</option><option>Zulia</option></select>
+    <label>Multi-brand:</label><select class="fsel" id="lcv-multi" onchange="filterTable('lcv-tbl')"><option value="">All</option><option value="Yes">Multi-brand</option><option value="No">Single brand</option></select>
+    <button class="fclear" onclick="clearFilters('lcv')">Clear</button>
+    <span class="fcount" id="lcv-count"></span>
+  </div>
+  <div class="tw"><table id="lcv-tbl">
+    <thead><tr>
+      <th onclick="sortTable('lcv-tbl',0)">Brand / Model <span class="sort-arrow">↕</span></th>
+      <th onclick="sortTable('lcv-tbl',1)">Operator</th>
+      <th onclick="sortTable('lcv-tbl',2)">City</th>
+      <th onclick="sortTable('lcv-tbl',3)">State <span class="sort-arrow">↕</span></th>
+      <th onclick="sortTable('lcv-tbl',4)">Segment</th>
+      <th onclick="sortTable('lcv-tbl',5)">Multi-brand <span class="sort-arrow">↕</span></th>
+      <th onclick="sortTable('lcv-tbl',6)">Commercial Moto Synergy</th>
+    </tr></thead>
+    <tbody>
+      <tr data-state="Yaracuy" data-multi="No"><td><span class="bpill ch">JAC T6 / JAC Arena commercial</span></td><td>Autopartes Lara</td><td>Yaritagua</td><td>Yaracuy</td><td>Pickup + sedan cargo</td><td>No</td><td>HIGH — JAC 42% of VZ commercial vehicle segment. Fleet buyers via 58 showrooms = delivery moto B2B pitch in every JAC store.</td></tr>
+      <tr data-state="Nacional" data-multi="No"><td><span class="bpill jp">Toyota Hilux</span></td><td>ASOTOY network</td><td>National</td><td>Nacional</td><td>Pickup truck (#1 LCV VZ)</td><td>No</td><td>LOW — Hilux buyer high-income. Not delivery moto profile.</td></tr>
+      <tr data-state="Carabobo" data-multi="No"><td><span class="bpill jp">Nissan Frontier / NP300</span></td><td>Autoambar CA (Los Guayos)</td><td>Los Guayos</td><td>Carabobo</td><td>Pickup truck</td><td>No</td><td>MEDIUM — Frontier buyer commercial / agricultural. Last-mile delivery moto add-on conversation possible with Autoambar.</td></tr>
+      <tr data-state="Nacional" data-multi="Yes"><td><span class="bpill ch">Foton — pickups + cargo vans</span></td><td>Multiple importers</td><td>National</td><td>Nacional</td><td>LCV — pickup + van</td><td>Yes</td><td>HIGH — Foton buyer IS the delivery/fleet moto buyer. Same operator, same customer. Approach Foton dealers about moto line alongside LCV.</td></tr>
+      <tr data-state="Nacional" data-multi="Yes"><td><span class="bpill ch">DFSK — V21 van + EC35 cargo</span></td><td>DFSK Venezuela</td><td>National</td><td>Nacional</td><td>Cargo vans + mini trucks</td><td>Yes</td><td>HIGH — DFSK cargo van buyer = Hero delivery moto buyer. Identical customer. Approach DFSK dealers for dual product pitch.</td></tr>
+      <tr data-state="Nacional" data-multi="No"><td><span class="bpill us">Ford Ranger / Maverick</span></td><td>Ford VZ dealers</td><td>National</td><td>Nacional</td><td>Pickup truck</td><td>No</td><td>MEDIUM — Ranger buyer commercial operator. Approach Ford multi-brand dealers about moto add-on.</td></tr>
+      <tr data-state="Nacional" data-multi="No"><td><span class="bpill ch">Changan Hunter (pickup)</span></td><td>Autopartes Lara → 58 showrooms</td><td>National</td><td>Nacional</td><td>Pickup truck</td><td>No</td><td>MEDIUM — Hunter buyer overlaps agricultural + fleet profile.</td></tr>
+      <tr data-state="Aragua" data-multi="Yes"><td><span class="bpill ko">Hyundai HD35/HD65 trucks</span></td><td>Laureles Trucks, Turmero</td><td>Turmero</td><td>Aragua</td><td>Light / medium trucks</td><td>Yes</td><td>HIGH — "Trucks" in name = fleet buyer orientation. LCV operator in Aragua = Hero cargo moto conversation in same state as Bera HQ.</td></tr>
+      <tr data-state="Nacional" data-multi="No"><td><span class="bpill in">Bajaj RE "Torito" 3-Wheeler</span></td><td>Grupo UMA VZ (Caracas)</td><td>Caracas</td><td>Nacional</td><td>3-wheel mototaxi</td><td>No</td><td>REFERENCE — Bajaj RE = commercial moto benchmark. If VZ mototaxi market develops like CA, 3-wheeler fleet sales = high-volume B2B channel.</td></tr>
+    </tbody>
+  </table></div>
+</div>
+
+<!-- ===== MAP ===== -->
+<div id="sec-map" class="sec">
+  <div id="map-wrap">
+    <div id="sidebar">
+      <div class="sbh">
+        <h3>Dealer Map — Venezuela</h3>
+        <div class="sbf" id="mapfilters">
+          <div class="sbf-btn on" onclick="mfilter('all',this)">All</div>
+          <div class="sbf-btn" onclick="mfilter('moto',this)">Motos</div>
+          <div class="sbf-btn" onclick="mfilter('auto',this)">Cars</div>
+          <div class="sbf-btn" onclick="mfilter('multi',this)">Multi-brand</div>
+          <div class="sbf-btn" onclick="mfilter('single',this)">Single brand</div>
+        </div>
+        <select id="map-city" onchange="rebuildMap()" style="width:100%;margin:4px 0 5px;padding:5px 8px;border:1px solid var(--rule);border-radius:5px;font-family:'DM Sans',sans-serif;font-size:11px;background:#fff;color:var(--ink2)">
+          <option value="">All cities</option>
+          <option>Araure</option><option>Barcelona</option><option>Barinas</option>
+          <option>Barquisimeto</option><option>Cagua</option><option>Caracas</option>
+          <option>Ciudad Guayana</option><option>Coro</option><option>El Tigre</option>
+          <option>Guatire</option><option>La Victoria</option><option>Lechería</option>
+          <option>Los Guayos</option><option>Maracaibo</option><option>Maracay</option>
+          <option>Maturín</option><option>Porlamar</option><option>Puerto Ordaz</option>
+          <option>Rubio</option><option>San Cristóbal</option><option>San Diego</option>
+          <option>Turmero</option><option>Valera</option><option>Valencia</option>
+          <option>Yaritagua</option>
+        </select>
+        <div class="sbct" id="sbct">Loading dealers...</div>
+      </div>
+      <div id="dlist"></div>
+    </div>
+    <div id="the-map"></div>
+  </div>
+</div>
+
+<!-- ===== HERO STRATEGY ===== -->
+<div id="sec-hero" class="sec">
+  <div class="sh"><div class="sh-tag">Hero MotoCorp · Product Portfolio Reference</div><h2>Hero Colombia Lineup — Reference for Venezuela</h2><p>Colombia's terrain and population profile closely mirrors Venezuela. These are the Hero models active in the Colombia market (heromotos.com.co), grouped by category, with official pricing converted to USD at today's rate (1 USD = 3,634 COP · April 29, 2026). All prices are list price before registration and insurance.</p></div>
+
+  <div class="cta"><div class="ctan">0</div><div class="ctac"><h3>Indian motorcycle brands with a national 3S network in Venezuela</h3><p>Bajaj in Caracas only (CBU, no assembly). TVS assembled in Anzoátegui, limited national coverage. Hero has zero Venezuela presence. 1M+ moto fleet, growing delivery economy, and a buyer who wants more than a generic Chinese moto — with nowhere to go today.</p></div></div>
+
+  <!-- TRABAJO -->
+  <div style="margin-bottom:10px;padding:10px 0 6px;border-bottom:2px solid var(--ink)">
+    <span style="font-family:'DM Serif Display',serif;font-size:22px">Trabajo</span>
+    <span style="font-size:11px;color:var(--ink3);margin-left:12px">Indestructible — built for daily work & delivery. Entry-level commuter segment.</span>
+  </div>
+  <div class="model-grid">
+    <div class="mcard-hero">
+      
+      <div class="mcard-body">
+        <div class="mcard-cat">Trabajo · 100cc</div>
+        <div class="mcard-name">ECO 100</div>
+        <div class="mcard-price">$1,153 <span>USD</span></div>
+        <div class="mcard-cop">COP $4,190,000</div>
+        <div class="mcard-desc">Entry commuter. Air-cooled 100cc single. Lightest Hero model. High fuel efficiency. Designed for urban delivery and first-vehicle buyers. Lowest acquisition cost in lineup.</div>
+      </div>
+    </div>
+    <div class="mcard-hero">
+      
+      <div class="mcard-body">
+        <div class="mcard-cat">Trabajo · 100cc</div>
+        <div class="mcard-name">ECO T</div>
+        <div class="mcard-price">$1,235 <span>USD</span></div>
+        <div class="mcard-cop">COP $4,490,000</div>
+        <div class="mcard-desc">Tubeless tires vs Eco 100. Stepped up from base with improved braking and comfort. Cargo carrier compatible. Popular with delivery riders needing reliability above price.</div>
+      </div>
+    </div>
+    <div class="mcard-hero">
+      
+      <div class="mcard-body">
+        <div class="mcard-cat">Trabajo · 100cc</div>
+        <div class="mcard-name">ECO DELUXE CLÁSICA</div>
+        <div class="mcard-price">$1,290 <span>USD</span></div>
+        <div class="mcard-cop">COP $4,690,000</div>
+        <div class="mcard-desc">Classic styling with drum brakes front/rear. Alloy wheels. Preferred in rural markets for its traditional look and simplicity of maintenance in low-infrastructure areas.</div>
+      </div>
+    </div>
+    <div class="mcard-hero">
+      
+      <div class="mcard-body">
+        <div class="mcard-cat">Trabajo · 100cc</div>
+        <div class="mcard-name">ECO DELUXE</div>
+        <div class="mcard-price">$1,373 <span>USD</span></div>
+        <div class="mcard-cop">COP $4,990,000</div>
+        <div class="mcard-desc">Modern alloy wheels, LED tail light, tubeless tires. Ideal urban commuter above entry level. Balance of price and features. Core volume model in Colombia and high-traffic markets.</div>
+      </div>
+    </div>
+    <div class="mcard-hero">
+      
+      <div class="mcard-body">
+        <div class="mcard-cat">Trabajo · 110cc</div>
+        <div class="mcard-name">SPLENDOR XPRO</div>
+        <div class="mcard-price">$1,566 <span>USD</span></div>
+        <div class="mcard-cop">COP $5,690,000</div>
+        <div class="mcard-desc">110cc single. Hero's most recognized global commuter platform. i3S idle-start-stop tech. Fuel injection. Digital instrument cluster. IBS integrated braking. Best-in-class fuel economy. Workhorse of Hero's global volume.</div>
+      </div>
+    </div>
+    <div class="mcard-hero">
+      
+      <div class="mcard-body">
+        <div class="mcard-cat">Trabajo · 125cc</div>
+        <div class="mcard-name">IGNITOR 5S</div>
+        <div class="mcard-price">$1,899 <span>USD</span></div>
+        <div class="mcard-cop">COP $6,900,000</div>
+        <div class="mcard-desc">125cc with 5-speed gearbox. Sporty commuter styling. LED lighting. Digital display. Connecting rod engine for better torque. Targets young professional commuters upgrading from 100cc segment.</div>
+      </div>
+    </div>
+    <div class="mcard-hero">
+      
+      <div class="mcard-body">
+        <div class="mcard-cat">Trabajo · 125cc</div>
+        <div class="mcard-name">IGNITOR XTECH</div>
+        <div class="mcard-price">$1,899 <span>USD</span></div>
+        <div class="mcard-cop">COP $6,900,000</div>
+        <div class="mcard-desc">Latest Ignitor variant (launched 2025). Advanced tech package over 5S: Bluetooth connectivity, turn-by-turn navigation display, upgraded suspension. Premium commuter daily rider.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- URBANAS -->
+  <div style="margin:32px 0 10px;padding:10px 0 6px;border-bottom:2px solid var(--ink)">
+    <span style="font-family:'DM Serif Display',serif;font-size:22px">Urbanas</span>
+    <span style="font-size:11px;color:var(--ink3);margin-left:12px">Sport-commuter segment. Targets young urban riders and performance seekers.</span>
+  </div>
+  <div class="model-grid">
+    <div class="mcard-hero">
+      
+      <div class="mcard-body">
+        <div class="mcard-cat">Urbana · 125cc</div>
+        <div class="mcard-name">HUNK 125R</div>
+        <div class="mcard-price">$2,144 <span>USD</span></div>
+        <div class="mcard-cop">COP $7,790,000</div>
+        <div class="mcard-desc">Entry sport-urban. 125cc with muscular street styling. Aggressive design, disc brakes front/rear, LED lighting. Competes directly with 125cc sport Yamaha and Honda CB segments. New model 2025.</div>
+      </div>
+    </div>
+    <div class="mcard-hero">
+      
+      <div class="mcard-body">
+        <div class="mcard-cat">Urbana · 150cc</div>
+        <div class="mcard-name">HUNK 150 XT</div>
+        <div class="mcard-price">$2,419 <span>USD</span></div>
+        <div class="mcard-cop">COP $8,790,000</div>
+        <div class="mcard-desc">150cc sport commuter. 4V engine. Bluetooth instrument cluster. Dual disc brakes. Alloy wheels. Aggressive stance. Targets the Yamaha FZ15 and Honda CB150 buyer who wants more spec per dollar.</div>
+      </div>
+    </div>
+    <div class="mcard-hero">
+      
+      <div class="mcard-body">
+        <div class="mcard-cat">Urbana · 163cc</div>
+        <div class="mcard-name">HUNK 160R</div>
+        <div class="mcard-price">$2,639 <span>USD</span></div>
+        <div class="mcard-cop">COP $9,590,000</div>
+        <div class="mcard-desc">163cc liquid-cooled single. Sporty naked street design. LED headlamp, digital console, ABS single-channel. The premium urban street choice. Direct competitor to Bajaj Pulsar NS160 and TVS Apache RTR 160.</div>
+      </div>
+    </div>
+    <div class="mcard-hero">
+      
+      <div class="mcard-body">
+        <div class="mcard-cat">Urbana · 163cc</div>
+        <div class="mcard-name">HUNK 160R 4V</div>
+        <div class="mcard-price">$3,024 <span>USD</span></div>
+        <div class="mcard-cop">COP $10,990,000</div>
+        <div class="mcard-desc">4-valve head variant of the 160R. Higher compression ratio = more power output. Premium segment street naked. Bluetooth connectivity, turn-by-turn navigation, dual-channel ABS. Top urban Hero model.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOBLE PROPÓSITO -->
+  <div style="margin:32px 0 10px;padding:10px 0 6px;border-bottom:2px solid var(--ink)">
+    <span style="font-family:'DM Serif Display',serif;font-size:22px">Doble Propósito</span>
+    <span style="font-size:11px;color:var(--ink3);margin-left:12px">Dual-purpose adventure. On-road and off-road capable. Venezuela's terrain demands this segment.</span>
+  </div>
+  <div class="model-grid">
+    <div class="mcard-hero">
+      
+      <div class="mcard-body">
+        <div class="mcard-cat">Doble Propósito · 200cc</div>
+        <div class="mcard-name">XPULSE 200 4V</div>
+        <div class="mcard-price">$3,410 <span>USD</span></div>
+        <div class="mcard-cop">COP $12,390,000</div>
+        <div class="mcard-desc">200cc 4-valve engine. Long-travel suspension (190mm front). 21" front wheel for off-road capability. LED lighting, digital GPS-ready console, ABS single-channel. Hero's flagship dual-purpose. Designed for the Colombian / Venezuelan interior — dirt roads, mountain passes, rural terrain.</div>
+      </div>
+    </div>
+    <div class="mcard-hero">
+      
+      <div class="mcard-body">
+        <div class="mcard-cat">Doble Propósito · 200cc</div>
+        <div class="mcard-name">XPULSE 200 PRO 4V</div>
+        <div class="mcard-price">$3,713 <span>USD</span></div>
+        <div class="mcard-cop">COP $13,490,000</div>
+        <div class="mcard-desc">Pro version adds: dual-channel ABS, traction control, ride-by-wire throttle, Bluetooth 5.0 with turn-by-turn navigation, quickshifter. Most feature-rich sub-$4K dual-purpose in LATAM. Rally-inspired design.</div>
+      </div>
+    </div>
+    <div class="mcard-hero">
+      
+      <div class="mcard-body">
+        <div class="mcard-cat">Doble Propósito · 200cc</div>
+        <div class="mcard-name">XPULSE RALLY</div>
+        <div class="mcard-price">$3,740 <span>USD</span></div>
+        <div class="mcard-cop">COP $13,590,000</div>
+        <div class="mcard-desc">Rally-spec derivative. Knobbly off-road tires, reinforced skid plate, high fender, rally-style instrument tower. Limited to off-road / dirt track use. Premium halo product for brand image and dealership draw. Designed for the hardcore off-road community and Hero Motosport events.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCOOTER -->
+  <div style="margin:32px 0 10px;padding:10px 0 6px;border-bottom:2px solid var(--ink)">
+    <span style="font-family:'DM Serif Display',serif;font-size:22px">Scooter</span>
+    <span style="font-size:11px;color:var(--ink3);margin-left:12px">Always connected. Urban convenience segment.</span>
+  </div>
+  <div class="model-grid">
+    <div class="mcard-hero">
+      
+      <div class="mcard-body">
+        <div class="mcard-cat">Scooter · 110cc</div>
+        <div class="mcard-name">XOOM 110</div>
+        <div class="mcard-price">TBC <span>USD</span></div>
+        <div class="mcard-cop">Price TBC — new launch 2025</div>
+        <div class="mcard-desc">Hero's first scooter for the Colombian/LATAM market. 110cc automatic. LED lighting, digital display, USB charging port. Underseat storage. Urban mobility for the connected generation. Targets female buyers and urban professionals who prioritize convenience over performance.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:28px;padding:14px 18px;background:#fff;border:1px solid var(--rule);border-radius:6px;font-size:11px;color:var(--ink3);line-height:1.6">
+    <strong style="color:var(--ink2)">Reference note:</strong> Prices shown are Colombian retail list prices (heromotos.com.co, April 2026) converted at 1 USD = 3,634 COP. Venezuela pricing will differ based on import duty (CBU ~30–40% or CKD ~15–20%), local margin, and FX. These figures establish the India-to-market value chain reference — not the final Venezuela price. Guarantee: Hero Colombia offers 4 years / 50,000 km — the longest in the market. Source: heromotos.com.co
+  </div>
+
+  <div class="ibox" style="margin-top:24px"><h3>Unit Economics — Preliminary</h3>
+  <div class="ir"><span class="il">CIF price (India → VZ)</span><span class="iv">~$600–800 Splendor / Eco CBU. ~$400–550 CKD kit (Year 2). TVS CKD in Anzoátegui = the reference agreement to mirror for Hero assembly.</span></div>
+  <div class="ir"><span class="il">Import duty</span><span class="iv">~30–40% CBU. CKD reduces to ~15–20%. All main VZ assemblers (Bera, EK, TVS) use CKD to capture this advantage. Hero CKD = Year 2 priority.</span></div>
+  <div class="ir"><span class="il">Retail target (VZ)</span><span class="iv">Eco 100: $1,100–1,300 · Splendor Xpro: $1,500–1,700 · Hunk 160R: $2,600–3,000 · Xpulse 200 4V: $3,200–3,800. Quality + 4yr warranty positioning vs Chinese generics — not a price war.</span></div>
+  <div class="ir"><span class="il">Gross margin</span><span class="iv">18–25% LATAM standard. $1,400 avg × 4,000 units Y1 × 20% = $1.12M gross. Y3 at 10,000 units = $2.8M. Add parts margin ~20% on top.</span></div>
+  <div class="ir"><span class="il">Break-even</span><span class="iv">$300–500K launch (inventory + parts depot + dealer setup + marketing). Month 14–18 at 300–400 units/month. Sub-dealer network via Bera agents means units move through existing infrastructure from Day 1.</span></div>
+  <div class="ir"><span class="il">Maldonado AG position</span><span class="iv">9 franchised dealerships. 50+ years VZ market. Transitioning to distribution model. Not a startup importer — a credentialed automotive operator with established OEM experience.</span></div>
+  </div>
+</div>
+
+<script>
+// NAV
+function showSec(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nt').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  el.classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='map') setTimeout(initMap,80);
+  
+  else {
+    updateCount('moto-tbl','moto-count');
+    updateCount('auto-tbl','auto-count');
+    updateCount('lcv-tbl','lcv-count');
+  }
+}
+
+// TABLE FILTER
+function filterTable(tid){
+  const tbl=document.getElementById(tid);
+  const prefix=tid.replace('-tbl','');
+  const search=(document.getElementById(prefix+'-search')||{value:''}).value.toLowerCase();
+  const state=(document.getElementById(prefix+'-state')||{value:''}).value;
+  const multi=(document.getElementById(prefix+'-multi')||{value:''}).value;
+  const asm=(document.getElementById(prefix+'-asm')||{value:''}).value;
+  const brand=(document.getElementById(prefix+'-brand')||{value:''}).value.toLowerCase();
+  let vis=0;
+  tbl.querySelectorAll('tbody tr').forEach(tr=>{
+    const txt=tr.textContent.toLowerCase();
+    const rs=tr.dataset.state||'';
+    const rm=tr.dataset.multi||'';
+    const ra=tr.dataset.asm||'';
+    const rb=(tr.dataset.brand||'').toLowerCase();
+    const ok=(
+      (!search||txt.includes(search))&&
+      (!state||rs===state)&&
+      (!multi||rm===multi)&&
+      (!asm||ra===asm)&&
+      (!brand||rb.includes(brand))
+    );
+    tr.classList.toggle('hidden',!ok);
+    if(ok) vis++;
+  });
+  updateCount(tid,prefix+'-count');
+}
+
+function updateCount(tid,cid){
+  const el=document.getElementById(cid);
+  if(!el) return;
+  const all=document.getElementById(tid).querySelectorAll('tbody tr').length;
+  const hidden=document.getElementById(tid).querySelectorAll('tbody tr.hidden').length;
+  el.textContent=`Showing ${all-hidden} of ${all}`;
+}
+
+function clearFilters(prefix){
+  ['search','state','multi','asm','brand'].forEach(f=>{
+    const el=document.getElementById(prefix+'-'+f);
+    if(el) el.value='';
+  });
+  filterTable(prefix+'-tbl');
+}
+
+// TABLE SORT
+let sortDir={};
+function sortTable(tid,col){
+  const tbl=document.getElementById(tid);
+  const tb=tbl.tBodies[0];
+  const rows=Array.from(tb.rows);
+  const dir=sortDir[tid+col]=sortDir[tid+col]===1?-1:1;
+  rows.sort((a,b)=>{
+    const av=a.cells[col]?a.cells[col].textContent.trim():'';
+    const bv=b.cells[col]?b.cells[col].textContent.trim():'';
+    return av.localeCompare(bv,undefined,{numeric:true})*dir;
+  });
+  rows.forEach(r=>tb.appendChild(r));
+}
+
+// INIT counts
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    updateCount('moto-tbl','moto-count');
+    updateCount('auto-tbl','auto-count');
+    updateCount('lcv-tbl','lcv-count');
+  },100);
+});
+
+// MAP
+var mapInit=false, leafMap, allMarkers=[], curFilter='all';
+
+const DEALERS=[
+  // MOTOS - single brand
+  {n:"Grupo UMA VZ — Bajaj",c:"Caracas",s:"Dtto. Capital",cat:"moto",multi:false,brands:["Bajaj"],lat:10.503,lng:-66.837,note:"Bajaj exclusive VZ. CBU only. Caracas-centric. No assembly. Same group as Grupo UMA Central America (6-country Bajaj). sisposameric.com"},
+  {n:"Servisuministros JPG — TVS Assembly",c:"Anzoátegui",s:"Anzoátegui",cat:"moto",multi:false,brands:["TVS Apache RTR","TVS Ntorq","TVS King 3W"],lat:9.93,lng:-64.29,note:"TVS exclusive VZ. CKD assembly in Anzoátegui. 14 products. Template for any Indian brand CKD assembly in VZ."},
+  {n:"Soloson Import CA — Suzuki Motos",c:"Guatire",s:"Miranda",cat:"moto",multi:false,brands:["Suzuki GN125","Suzuki EN125","Suzuki Gixxer"],lat:10.474,lng:-66.537,note:"Local Suzuki moto CKD assembly in Guatire plant. Proof small assembly operations viable."},
+  {n:"Kawasaki VZ — Caracas Dealers",c:"Caracas",s:"Dtto. Capital",cat:"moto",multi:false,brands:["Kawasaki 300cc+"],lat:10.48,lng:-66.90,note:"Official Kawasaki concesionarios, Caracas. 300cc+ sport/adventure. venezuela.kawasaki-la.com"},
+  // MOTOS - multi brand
+  {n:"Bera Motorcycles HQ",c:"La Victoria",s:"Aragua",cat:"moto",multi:true,brands:["Bera","Moto Morini","Zontes"],lat:10.228,lng:-67.334,note:"LARGEST moto operator VZ. 200+ agents, 22 states. 5 assembly lines, 1 moto/40 sec. CEO: Elías Beirouti. Founded 1997. beraservices.com"},
+  {n:"Empire Keeway — Assembly HQ",c:"Anzoátegui",s:"Anzoátegui",cat:"moto",multi:true,brands:["EK/Keeway","CFMOTO"],lat:9.95,lng:-64.25,note:"Keeway CKD assembled locally. CFMOTO premium co-branded. 10+ stores across VZ. EK Day events. empirekeeway.com"},
+  {n:"Empire Keeway — Bello Monte Caracas",c:"Caracas",s:"Dtto. Capital",cat:"moto",multi:true,brands:["EK/Keeway","CFMOTO"],lat:10.47,lng:-66.86,note:"Opened Q1 2026. Bello Monte, Caracas. CFMOTO + Keeway. EK Day free rides. Official sponsor Gran Caracas 2026."},
+  {n:"Empire Keeway — Maracay",c:"Maracay",s:"Aragua",cat:"moto",multi:true,brands:["EK/Keeway","CFMOTO"],lat:10.24,lng:-67.60,note:"5th EK concession, Dec 2025. Maracay, Aragua. Full EK + CFMOTO. Strong Aragua market investment."},
+  {n:"Empire Keeway — Valera",c:"Valera",s:"Trujillo",cat:"moto",multi:true,brands:["EK/Keeway","CFMOTO"],lat:9.315,lng:-70.606,note:"EK + CFMOTO combined store, Valera 2025. Confirms Trujillo commercial moto importance."},
+  {n:"Bera — Agents Maracay / Aragua",c:"Maracay",s:"Aragua",cat:"moto",multi:true,brands:["Bera brand"],lat:10.23,lng:-67.58,note:"Bera authorized agents across Maracay and Aragua state. Key city (Johnny's base). 200+ national agents include Zulia, Aragua, Carabobo. Approach via Bera HQ."},
+  {n:"AVA Motos Venezuela",c:"Caracas",s:"Dtto. Capital",cat:"moto",multi:true,brands:["AVA 150cc"],lat:10.50,lng:-66.92,note:"National multi-brand importer. Commuter focus from $790. Multi-brand model = flexible to add lines. avamotosvzla.com"},
+  {n:"Escuda — Maracaibo",c:"Maracaibo",s:"Zulia",cat:"moto",multi:true,brands:["Escuda brand"],lat:10.663,lng:-71.624,note:"Calle 76/77, Edif. Befercom, sector 5 de Julio. Zulia anchor. Bajaj and TVS have minimal Maracaibo presence."},
+  {n:"Escuda — Táchira (San Cristóbal)",c:"San Cristóbal",s:"Táchira",cat:"moto",multi:true,brands:["Escuda brand"],lat:7.773,lng:-72.224,note:"Multicentro Coliseo, Km 16, Carretera Panamericana. Colombian border = strong regional moto market."},
+  {n:"Escuda — Puerto Ordaz",c:"Puerto Ordaz",s:"Bolívar",cat:"moto",multi:true,brands:["Escuda brand"],lat:8.292,lng:-62.722,note:"CC Naraya, Av. Paseo Caroní, Alta Vista. Mining economy = high moto use. No Indian brand here."},
+  {n:"Escuda — Ciudad Guayana",c:"Ciudad Guayana",s:"Bolívar",cat:"moto",multi:true,brands:["Escuda brand"],lat:8.37,lng:-62.65,note:"Av. Manuel Piar, UD-112. Second Escuda point in Bolívar. Industrial / mining delivery economy."},
+  {n:"Escuda — Coro, Falcón",c:"Coro",s:"Falcón",cat:"moto",multi:true,brands:["Escuda brand"],lat:11.405,lng:-69.674,note:"Edif. LIMIKA, Los 3 Platos, Santa Ana de Coro. Coastal/arid economy, moto-centric transport."},
+  {n:"Escuda — Barquisimeto",c:"Barquisimeto",s:"Lara",cat:"moto",multi:true,brands:["Escuda brand"],lat:10.07,lng:-69.307,note:"Av. Caracas entre 4ta y 5ta Av., al lado Sofitasa. Agricultural heartland, high moto utility demand."},
+  {n:"MC Motorcycles / Motomania (San Cristóbal)",c:"San Cristóbal",s:"Táchira",cat:"moto",multi:true,brands:["MC Brand"],lat:7.765,lng:-72.232,note:"Calle 1 con carrera 3, Collinas de Antaraju. MC Motos sub-dealer. Andean hub, border proximity."},
+  {n:"Motocentralvzla — Valencia",c:"Valencia",s:"Carabobo",cat:"moto",multi:true,brands:["MC Brand"],lat:10.166,lng:-68.00,note:"Valencia, Carabobo. Sister to Motocentralvzla Maracay = one conversation, 2 states."},
+  {n:"Motocentralvzla — Maracay",c:"Maracay",s:"Aragua",cat:"moto",multi:true,brands:["MC Brand"],lat:10.23,lng:-67.56,note:"Maracay, Aragua. MC sub-dealer. Paired with Valencia location = central VZ coverage."},
+  {n:"AtilioMotors — Boconó, Trujillo",c:"Boconó",s:"Trujillo",cat:"moto",multi:true,brands:["MC Brand"],lat:9.249,lng:-70.265,note:"Boconó, Trujillo. MC sub-dealer. Rural Andean market. High terrain = high moto utility."},
+  {n:"Inicios M&R — Rubio, Táchira",c:"Rubio",s:"Táchira",cat:"moto",multi:true,brands:["MC Brand"],lat:7.695,lng:-72.360,note:"Rubio, Táchira. Near Colombia border. High moto transit volume."},
+  // CARS - single
+  {n:"Autopartes Lara — JAC + Changan HQ",c:"Yaritagua",s:"Yaracuy",cat:"auto",multi:false,brands:["JAC","Changan"],lat:10.078,lng:-68.682,note:"75,000 m² assembly plant. JAC #1 VZ brand 2025 (15,777 units). Changan #3. 58 JAC showrooms nationwide. Template for full-scale Chinese auto distribution."},
+  {n:"JAC — Plaza Venezuela, Caracas",c:"Caracas",s:"Dtto. Capital",cat:"auto",multi:false,brands:["JAC"],lat:10.506,lng:-66.902,note:"CC Forum, Plaza Venezuela. @jacplazavenezuela. 0424-778-0000. JAC #1 brand VZ 2025."},
+  {n:"JAC — Sambil Candelaria, Caracas",c:"Caracas",s:"Dtto. Capital",cat:"auto",multi:false,brands:["JAC"],lat:10.513,lng:-66.905,note:"Sambil La Candelaria, nivel Río. @autojac.caracas. Opened Aug 2025."},
+  {n:"JAC — CC Parque Cerro Verde, Caracas",c:"Caracas",s:"Dtto. Capital",cat:"auto",multi:false,brands:["JAC"],lat:10.520,lng:-66.847,note:"CC Parque Cerro Verde, local 3–4. @jac.rootes. Opened Jul 2025."},
+  {n:"JAC — CC Ciudad Tamanaco (CCTQ)",c:"Caracas",s:"Dtto. Capital",cat:"auto",multi:false,brands:["JAC"],lat:10.487,lng:-66.847,note:"CCTQ, Nivel PB. @jactamanaco. Opened Oct 2025. Premium shopping center location."},
+  {n:"Changan — Maracay",c:"Maracay",s:"Aragua",cat:"auto",multi:false,brands:["Changan"],lat:10.245,lng:-67.592,note:"Av. Bolívar C/C Av. Primera norte sur, Parcelas A1–A2, Urb. San Jacinto, Maracay. Full 3S. changanvzla.com"},
+  {n:"Changan — Caracas",c:"Caracas",s:"Dtto. Capital",cat:"auto",multi:false,brands:["Changan"],lat:10.492,lng:-66.882,note:"Dedicated Caracas Changan dealer. Alsvin sedan, CS35/CS55 SUV, Hunter pickup."},
+  {n:"Changan — Maracaibo",c:"Maracaibo",s:"Zulia",cat:"auto",multi:false,brands:["Changan"],lat:10.659,lng:-71.618,note:"Dedicated Maracaibo Changan dealer. Part of Autopartes Lara network."},
+  {n:"Changan — Valencia",c:"Valencia",s:"Carabobo",cat:"auto",multi:false,brands:["Changan"],lat:10.168,lng:-68.014,note:"Dedicated Valencia Changan dealer. Carabobo = automotive capital VZ."},
+  {n:"Changan — San Cristóbal",c:"San Cristóbal",s:"Táchira",cat:"auto",multi:false,brands:["Changan"],lat:7.774,lng:-72.221,note:"Dedicated Táchira Changan dealer. Border city = import-friendly market."},
+  {n:"Changan — Puerto Ordaz",c:"Puerto Ordaz",s:"Bolívar",cat:"auto",multi:false,brands:["Changan"],lat:8.295,lng:-62.715,note:"Puerto Ordaz Changan dealer. Mining economy fleet buyers."},
+  {n:"Changan — Maturín",c:"Maturín",s:"Monagas",cat:"auto",multi:false,brands:["Changan"],lat:9.745,lng:-63.183,note:"Maturín, Monagas. Eastern VZ oil state. Changan one of few organized dealers here."},
+  {n:"Autoambar CA — Nissan HQ",c:"Los Guayos",s:"Carabobo",cat:"auto",multi:false,brands:["Nissan"],lat:10.215,lng:-67.94,note:"EXCLUSIVE national Nissan importer. Founded Jul 2002. Los Guayos, Carabobo. Admin HQ: Valencia. nissan.net.ve. 0241-858-8835. Frontier, X-Trail, Kicks, Patrol, Armada."},
+  {n:"Ford Campitos Motors — Caracas",c:"Caracas",s:"Dtto. Capital",cat:"auto",multi:false,brands:["Ford"],lat:10.521,lng:-66.848,note:"CC Los Campitos. Official Ford dealer since 2009. Type A certified. 3yr/100k km warranty. fordcampitosmotors.com"},
+  {n:"Cars CA — Toyota, Los Chaguaramos",c:"Caracas",s:"Dtto. Capital",cat:"auto",multi:false,brands:["Toyota"],lat:10.49,lng:-66.91,note:"Av. Los Ilustres, Edif. CARS. ASOTOY authorized. 0212-400-8244. Full Toyota 3S."},
+  {n:"GAC Motor — La Florida, Caracas",c:"Caracas",s:"Dtto. Capital",cat:"auto",multi:false,brands:["GAC"],lat:10.496,lng:-66.897,note:"Av. Los Mangos, Alta Florida. Mid-premium Chinese SUV ($25–45K). GS3/GS4/GS8."},
+  {n:"Asiria Motors — GWM Haval, Caracas",c:"Caracas",s:"Dtto. Capital",cat:"auto",multi:false,brands:["GWM Haval"],lat:10.495,lng:-66.88,note:"GWM Haval dealer Caracas. H6, Jolion, Tank 300. GWM 1,000+ units VZ 2025."},
+  {n:"Kaiyi — Los Campitos / Bello Campo",c:"Caracas",s:"Dtto. Capital",cat:"auto",multi:false,brands:["Kaiyi"],lat:10.489,lng:-66.856,note:"CC Los Campitos PB (primary). Av. José Félix Sosa, Bello Campo (2nd). Kaiyi = Chery sub-brand, launched 2024."},
+  {n:"JAC — Cagua, Aragua",c:"Cagua",s:"Aragua",cat:"auto",multi:false,brands:["JAC"],lat:10.182,lng:-67.462,note:"Ctra. Nacional Cagua, Villa de Cura. @autoclubve. Industrial Caracas–Valencia corridor."},
+  {n:"JAC — Barcelona, Anzoátegui",c:"Barcelona",s:"Anzoátegui",cat:"auto",multi:false,brands:["JAC"],lat:10.138,lng:-64.688,note:"Av. Principal Mesones, Barcelona. @autoclubve. Opened Jun 2024. Anzoátegui state capital."},
+  {n:"JAC — Barquisimeto (3 points), Lara",c:"Barquisimeto",s:"Lara",cat:"auto",multi:false,brands:["JAC"],lat:10.068,lng:-69.318,note:"3 JAC points: Av. 20 zona Centro · Av. Las Industrias Zona Industrial III · Av. Pedro León Torres (opened May 2025). Lara = large agricultural state."},
+  {n:"JAC — Maracaibo (3 points), Zulia",c:"Maracaibo",s:"Zulia",cat:"auto",multi:false,brands:["JAC"],lat:10.674,lng:-71.623,note:"3 Maracaibo points: Zulia Mall · Zona D Las Delicias · Circunvalación 2. JAC heavily investing in Zulia."},
+  {n:"JAC — Barinas",c:"Barinas",s:"Barinas",cat:"auto",multi:false,brands:["JAC"],lat:8.623,lng:-70.207,note:"Av. Cuatricentenaria, Barinas. @jacbarinass. Llanos state entry."},
+  {n:"JAC — Valencia, Carabobo",c:"Valencia",s:"Carabobo",cat:"auto",multi:false,brands:["JAC"],lat:10.172,lng:-68.007,note:"Av. Lisandro Alvarado al lado empresas Amadio. @jaccarabobo. Opened Aug 2024."},
+  {n:"Kia — Maracay",c:"Maracay",s:"Aragua",cat:"auto",multi:false,brands:["Kia"],lat:10.238,lng:-67.601,note:"Av. Constitución Oeste 184 (Peaje de Tapa Tapa), Maracay. Official Kia dealer."},
+  {n:"Kia — El Viñedo, Valencia",c:"Valencia",s:"Carabobo",cat:"auto",multi:false,brands:["Kia"],lat:10.160,lng:-67.987,note:"Av. Carlos Sanda (El Viñedo), Valencia. Official Kia. Picanto, Sportage, Carnival."},
+  {n:"Kia — Maracaibo",c:"Maracaibo",s:"Zulia",cat:"auto",multi:false,brands:["Kia"],lat:10.669,lng:-71.614,note:"Av. 8 con calle 82B. Also: Av. Universidad, Edif. Kia Cars, Maracaibo. Two points in Zulia."},
+  {n:"Kia — Barquisimeto",c:"Barquisimeto",s:"Lara",cat:"auto",multi:false,brands:["Kia"],lat:10.062,lng:-69.311,note:"Av. Lara al lado BBVA Provincial, Barquisimeto. Official Kia dealer."},
+  {n:"Kaiyi — Maracaibo",c:"Maracaibo",s:"Zulia",cat:"auto",multi:false,brands:["Kaiyi"],lat:10.665,lng:-71.619,note:"Av. 4 Bella Vista entre calles 80 y 82. Kaiyi 2024 launch in Zulia."},
+  {n:"Kaiyi — Sambil Barquisimeto",c:"Barquisimeto",s:"Lara",cat:"auto",multi:false,brands:["Kaiyi"],lat:10.065,lng:-69.314,note:"CC Sambil Barquisimeto, local 1 frente Av. Venezuela. Prime location."},
+  {n:"Kaiyi — Carrizal, Miranda",c:"Carrizal",s:"Miranda",cat:"auto",multi:false,brands:["Kaiyi"],lat:10.456,lng:-66.976,note:"Carretera Panamericana km. 19, La Carbonera, Carrizal. Suburban Caracas."},
+  {n:"Kaiyi — Porlamar, Nueva Esparta",c:"Porlamar",s:"Nueva Esparta",cat:"auto",multi:false,brands:["Kaiyi"],lat:10.962,lng:-63.857,note:"Av. Rómulo Betancourt con Aeropuerto, Sabana Mar. Free port advantage."},
+  {n:"Kaiyi — Barinas",c:"Barinas",s:"Barinas",cat:"auto",multi:false,brands:["Kaiyi"],lat:8.619,lng:-70.210,note:"Av. 23 de enero, sector Los Marqueses. Kaiyi in Llanos states."},
+  {n:"Renault — CCCT, Caracas",c:"Caracas",s:"Dtto. Capital",cat:"auto",multi:false,brands:["Renault"],lat:10.487,lng:-66.849,note:"CCCT, PB y C1 Plaza Central. Renault returned VZ 2024. Sandero, Stepway, Logan, Duster. 10 national points."},
+  {n:"Renault — Maracay",c:"Maracay",s:"Aragua",cat:"auto",multi:false,brands:["Renault"],lat:10.247,lng:-67.595,note:"Av. Bolívar Oeste, Sector La Romana, Maracay. One of 10 national Renault points."},
+  {n:"Renault — Barquisimeto",c:"Barquisimeto",s:"Lara",cat:"auto",multi:false,brands:["Renault"],lat:10.066,lng:-69.302,note:"Barquisimeto Renault dealer. Luis Román (VP) quoted on VZ re-entry."},
+  {n:"Renault — Punto Fijo, Falcón",c:"Punto Fijo",s:"Falcón",cat:"auto",multi:false,brands:["Renault"],lat:11.706,lng:-70.213,note:"Av. Francisco de Miranda, diagonal escuela de ingenieros. Paraguaná refinery economy."},
+  {n:"Renault — Acarigua, Portuguesa",c:"Acarigua",s:"Portuguesa",cat:"auto",multi:false,brands:["Renault"],lat:9.565,lng:-69.218,note:"CC Llano Mall, Av. José Antonio Páez cruce Av. Eduardo Chollet. Agricultural interior."},
+  {n:"Renault — Barinas",c:"Barinas",s:"Barinas",cat:"auto",multi:false,brands:["Renault"],lat:8.618,lng:-70.203,note:"Av. 23 de Enero, Sector La Federación. Oroch pickup popular in agricultural states."},
+  // CARS - multi
+  {n:"Automarca — Hyundai, Los Ruices",c:"Caracas",s:"Dtto. Capital",cat:"auto",multi:true,brands:["Hyundai"],lat:10.502,lng:-66.848,note:"50+ yrs VZ. Multi-brand. Av. Principal Los Ruices, Edif. Roche PB. @automarcahyundai. 0424-185-1962."},
+  {n:"García Tuñón — Hyundai, Los Palos Grandes",c:"Caracas",s:"Dtto. Capital",cat:"auto",multi:true,brands:["Hyundai"],lat:10.499,lng:-66.867,note:"Multi-brand. Av. Francisco de Miranda, Los Palos Grandes. @garciatunon.hyundai. 0212-208-7689."},
+  {n:"Iksan — Hyundai, Las Mercedes",c:"Caracas",s:"Dtto. Capital",cat:"auto",multi:true,brands:["Hyundai"],lat:10.484,lng:-66.860,note:"Multi-brand. Av. Orinoco con Calle Monterrey, Las Mercedes. @iksan.caracas. 0412-639-3167."},
+  {n:"Autoking — Hyundai, Caracas",c:"Caracas",s:"Dtto. Capital",cat:"auto",multi:true,brands:["Hyundai","Ford parts"],lat:10.505,lng:-66.880,note:"50+ yrs VZ. Hyundai + Ford parts wholesale. Multi-brand infrastructure. autokingve.com."},
+  {n:"Verautos — Hyundai, Valencia",c:"Valencia",s:"Carabobo",cat:"auto",multi:true,brands:["Hyundai"],lat:10.172,lng:-68.007,note:"Multi-brand. Av. Bolívar Norte, Urb. El Recreo. @Verautos. mercadeo@verautos.com.ve. Valencia = auto capital VZ."},
+  {n:"Iksan Motors — Castillito, San Diego",c:"San Diego",s:"Carabobo",cat:"auto",multi:true,brands:["Hyundai"],lat:10.262,lng:-67.960,note:"Multi-brand. Zona Industrial Castillito. @Iksanmotors. Fleet/commercial buyer focus."},
+  {n:"Daimotors — Hyundai, Maracaibo",c:"Maracaibo",s:"Zulia",cat:"auto",multi:true,brands:["Hyundai"],lat:10.668,lng:-71.617,note:"Multi-brand. Av. 4 Bella Vista. @daimotorsmcbo. Primary Maracaibo Hyundai dealer."},
+  {n:"Automall VE — Hyundai, Maracaibo",c:"Maracaibo",s:"Zulia",cat:"auto",multi:true,brands:["Hyundai"],lat:10.672,lng:-71.619,note:"Multi-brand. Av. Padilla, Calles 95–95C. @automallve. Second Maracaibo Hyundai."},
+  {n:"Iksan — Hyundai, Lechería",c:"Lechería",s:"Anzoátegui",cat:"auto",multi:true,brands:["Hyundai"],lat:10.194,lng:-64.685,note:"Multi-brand. Calle Mariño, CC Peñón del Faro. @iksan.lecheria. Same state as TVS assembly."},
+  {n:"Global Auto Hyundai — El Tigre",c:"El Tigre",s:"Anzoátegui",cat:"auto",multi:true,brands:["Hyundai"],lat:8.887,lng:-64.258,note:"Multi-brand. Av. Rotaria, sector Vea. @Hyundaieltigre. Interior Anzoátegui oil town."},
+  {n:"Talleres Latino — Hyundai, Barcelona",c:"Barcelona",s:"Anzoátegui",cat:"auto",multi:true,brands:["Hyundai"],lat:10.138,lng:-64.685,note:"Multi-brand. Av. Juan de Urpín c/ Calle San Martín. 0281-274-1733."},
+  {n:"Laureles Trucks — Hyundai, Turmero",c:"Turmero",s:"Aragua",cat:"auto",multi:true,brands:["Hyundai"],lat:10.22,lng:-67.48,note:"Multi-brand. LCV/truck focus. Carretera Nacional Cagua–La Encrucijada. @laurelestrucks. Same state as Bera HQ."},
+  {n:"Sei Motors — Hyundai, San Cristóbal",c:"San Cristóbal",s:"Táchira",cat:"auto",multi:true,brands:["Hyundai"],lat:7.768,lng:-72.228,note:"Multi-brand. Av. Libertador, Edif. Sei Motors. @seimotorsc. Same city as Motomania moto dealer."},
+  {n:"Won Motors — Hyundai, Valera",c:"Valera",s:"Trujillo",cat:"auto",multi:true,brands:["Hyundai"],lat:9.318,lng:-70.609,note:"Multi-brand. Av. Bolívar, sector la plata. @hyundaiwonmotors. Same city as EK Valera moto store."},
+  {n:"Nemer — Hyundai, Barinas",c:"Barinas",s:"Barinas",cat:"auto",multi:true,brands:["Hyundai"],lat:8.623,lng:-70.203,note:"Multi-brand. Av. 23 de Enero, Parque la Federación. Also covers San Cristóbal."},
+  {n:"Primelink Autos — Hyundai, Araure",c:"Araure",s:"Portuguesa",cat:"auto",multi:true,brands:["Hyundai"],lat:9.565,lng:-69.215,note:"Multi-brand. Av. 13 de Junio con Av. 25. Agricultural Portuguesa state. @primelink.autos."},
+  {n:"Maxiautos — Hyundai, Puerto Ordaz",c:"Puerto Ordaz",s:"Bolívar",cat:"auto",multi:true,brands:["Hyundai"],lat:8.289,lng:-62.718,note:"Multi-brand. Av. Caracas UD 304, Zona Industrial Los Pinos. @maxiautosguayana. Same city as Escuda moto."},
+  {n:"Automotores Hyundai — Porlamar",c:"Porlamar",s:"Nueva Esparta",cat:"auto",multi:true,brands:["Hyundai"],lat:10.957,lng:-63.846,note:"Multi-brand. Sector Los Cocos, Porlamar. Free port = lower duty. Tourism economy. @hyundaimgta."},
+];
+
+const COLORS={moto_single:'#1a4fc8',moto_multi:'#7c3aed',auto_single:'#c8391a',auto_multi:'#b8860b'};
+const CLABELS={moto_single:'Moto · Exclusive brand',moto_multi:'Moto · Multi-brand',auto_single:'Auto · Single brand',auto_multi:'Auto · Multi-brand'};
+
+function dColor(d){
+  if(d.cat==='moto') return d.multi?COLORS.moto_multi:COLORS.moto_single;
+  return d.multi?COLORS.auto_multi:COLORS.auto_single;
+}
+
+function makeIcon(color,size){
+  size=size||12;
+  return L.divIcon({className:'',html:`<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)"></div>`,iconSize:[size,size],iconAnchor:[size/2,size/2]});
+}
+
+function initMap(){
+  if(mapInit) return;
+  mapInit=true;
+  leafMap=L.map('the-map').setView([8.5,-66.5],6);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',maxZoom:19,subdomains:['a','b','c']}).addTo(leafMap);
+
+  // Legend
+  const legend=L.control({position:'bottomright'});
+  legend.onAdd=()=>{
+    const d=L.DomUtil.create('div');
+    d.style.cssText='background:#fff;padding:10px 12px;border-radius:6px;font-size:11px;font-family:DM Sans,sans-serif;border:1px solid #e0dfd7;line-height:1.8';
+    d.innerHTML=Object.entries(COLORS).map(([k,v])=>`<div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:50%;background:${v};border:1px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.3)"></div>${CLABELS[k]}</div>`).join('');
+    return d;
+  };
+  legend.addTo(leafMap);
+
+  DEALERS.forEach((d,i)=>{
+    const color=dColor(d);
+    const brandHtml=d.brands.map(b=>`<span class="lp-brand" style="background:${color}20;color:${color};border:1px solid ${color}50;font-size:9px;padding:1px 5px;border-radius:6px;font-weight:500;margin:1px;display:inline-block">${b}</span>`).join('');
+    const typeKey=(d.cat==='moto'?'moto':'auto')+'_'+(d.multi?'multi':'single');
+    const popup=`<div class="lp"><div class="lpn">${d.n}</div><div class="lpt">${CLABELS[typeKey]} · ${d.c}, ${d.s}</div><div class="lpb">${brandHtml}</div><div class="lpno">${d.note}</div></div>`;
+    const marker=L.marker([d.lat,d.lng],{icon:makeIcon(color,12)}).addTo(leafMap).bindPopup(popup,{maxWidth:280,className:''});
+    marker.didx=i;
+    marker.on('click',()=>selectDealer(i));
+    allMarkers.push(marker);
+  });
+  buildSidebar();
+}
+
+function rebuildMap(){
+  const cityEl=document.getElementById('map-city');
+  const cityVal=cityEl?cityEl.value:'';
+  DEALERS.forEach((d,i)=>{
+    let show=true;
+    if(curFilter==='moto') show=d.cat==='moto';
+    else if(curFilter==='auto') show=d.cat==='auto';
+    else if(curFilter==='multi') show=d.multi;
+    else if(curFilter==='single') show=!d.multi;
+    if(cityVal && d.c!==cityVal) show=false;
+    if(show) allMarkers[i].addTo(leafMap);
+    else allMarkers[i].remove();
+  });
+  buildSidebar();
+}
+
+function mfilter(f,el){
+  if(!el) return;
+  curFilter=f;
+  document.querySelectorAll('.sbf-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  rebuildMap();
+}
+
+function buildSidebar(){
+  const list=document.getElementById('dlist');
+  list.innerHTML='';
+  let cnt=0;
+  const cityVal=(document.getElementById('map-city')||{value:''}).value;
+  DEALERS.forEach((d,i)=>{
+    let show=true;
+    if(curFilter==='moto') show=d.cat==='moto';
+    else if(curFilter==='auto') show=d.cat==='auto';
+    else if(curFilter==='multi') show=d.multi;
+    else if(curFilter==='single') show=!d.multi;
+    if(cityVal && d.c!==cityVal) show=false;
+    if(!show) return;
+    cnt++;
+    const color=dColor(d);
+    const div=document.createElement('div');
+    div.className='dli';
+    div.id='dli-'+i;
+    div.innerHTML=`<div class="dli-n">${d.n}</div><div class="dli-c">${d.c}, ${d.s}</div><span class="dli-tag" style="background:${color}20;color:${color};border:1px solid ${color}50">${d.multi?'Multi-brand':'Single brand'} · ${d.cat==='moto'?'Moto':'Auto'}</span>`;
+    div.onclick=()=>{leafMap.setView([d.lat,d.lng],13);allMarkers[i].openPopup();selectDealer(i);};
+    list.appendChild(div);
+  });
+  document.getElementById('sbct').textContent=`Showing ${cnt} of ${DEALERS.length} dealers`;
+}
+
+// Hero images are embedded as inline SVG
+</script>
+</body>
+</html>
